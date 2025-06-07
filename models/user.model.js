@@ -14,6 +14,25 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  phoneNumber: {
+    type: Number,
+  },
+  address: {
+    type: String,
+  },
+  image: {
+    type: String,
+  },
+  gender: {
+    type: String,
+    enum: ["male", "female"],
+  },
+  dob: {
+    type: Date,
+  },
+  occupation: {
+    type: String,
+  }
 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
