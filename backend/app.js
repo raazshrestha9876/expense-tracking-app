@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import userRoute from './routes/user.route.js'
 import expenseRoute from './routes/expense.route.js'
+import incomeRoute from './routes/income.route.js'
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ connectDB();
 
 app.use(userRoute);
 app.use(expenseRoute);
+app.use(incomeRoute);
 
 app.use(errorMiddleware);
 
