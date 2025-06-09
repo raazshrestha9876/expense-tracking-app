@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import Expense from "../models/expense.model.js";
 import errorHandler from "../utils/errorHandler";
+import { io } from "../app.js";
+import Notification from "../models/notification.model.js";
 
 export const addExpense = async (req, res, next) => {
   try {
@@ -13,7 +15,21 @@ export const addExpense = async (req, res, next) => {
       tags,
       user: req.userId,
     });
+
     await expense.save();
+
+    const notification = new Notification({
+      user: req.userId,
+      message: `You added an expense of Rs. ${amount}`,
+    });
+    await notification.save();
+
+    io.to(req.userId.toString().emit("new_notification"), {
+      _id: notification._id,
+      message: notification.message,
+      isRead: notification.isRead,
+    });
+
     res.status(201).json({
       success: true,
       message: " Expense added successfully",
@@ -72,6 +88,24 @@ export const updateExpense = async (req, res, next) => {
         new: true,
       }
     );
+
+    if (expense.amount !== amount) {
+      const notification = new Notification({
+        user: req.userId,
+        message: `You have updated an expense of Rs. ${amount}`,
+      });
+
+      await notification.save();
+
+      io.to(
+        req.userId.toString().emit("new_notification", {
+          _id: notification._id,
+          message: notification.message,
+          isRead: notification.isRead,
+        })
+      );
+    }
+
     res.status(200).json({
       success: true,
       message: "Expense updated successfully",
