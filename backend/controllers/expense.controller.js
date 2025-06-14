@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Expense from "../models/expense.model.js";
-import errorHandler from "../utils/errorHandler";
+import errorHandler from "../utils/errorHandler.js";
 import { io } from "../app.js";
 import Notification from "../models/notification.model.js";
 
@@ -24,11 +24,11 @@ export const addExpense = async (req, res, next) => {
     });
     await notification.save();
 
-    io.to(req.userId.toString().emit("new_notification"), {
-      _id: notification._id,
-      message: notification.message,
-      isRead: notification.isRead,
-    });
+    // io.to(req.userId.toString().emit("new_notification"), {
+    //   _id: notification._id,
+    //   message: notification.message,
+    //   isRead: notification.isRead,
+    // });
 
     res.status(201).json({
       success: true,
@@ -144,7 +144,7 @@ export const getExpenseDailyAnalytics = async (req, res, next) => {
           _id: {
             $dateToString: {
               format: "%Y-%m-%d",
-              date: "$created_at",
+              date: "$createdAt",
               timezone: "Asia/Kathmandu",
             },
           },
@@ -158,7 +158,7 @@ export const getExpenseDailyAnalytics = async (req, res, next) => {
       {
         $project: {
           _id: 0,
-          created_at: "$_id",
+          date: "$_id",
           total: 1,
           count: 1,
         },
@@ -222,10 +222,12 @@ export const getExpenseAllDateAnalytics = async (req, res, next) => {
           daily: [
             {
               $group: {
-                $dateToString: {
-                  format: "%Y-%m-%d",
-                  date: "created_at",
-                  timezone: "Asia/Kathmandu",
+                _id: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt",
+                    timezone: "Asia/Kathmandu",
+                  },
                 },
                 totalAmount: { $sum: "$amount" },
                 count: { $sum: 1 },
@@ -247,8 +249,11 @@ export const getExpenseAllDateAnalytics = async (req, res, next) => {
             {
               $group: {
                 _id: {
-                  year: { $year: "$created_at", timezone: "Asia/Kathmandu" },
-                  week: { $isoWeek: "$created_at", timezone: "Asia/Kathmandu" },
+                  $dateToString: {
+                    format: "%U",
+                    date: "$createdAt",
+                    timezone: "Asia/Kathmandu",
+                  },
                 },
                 totalAmount: { $sum: "$amount" },
                 count: { $sum: 1 },
@@ -260,7 +265,7 @@ export const getExpenseAllDateAnalytics = async (req, res, next) => {
             {
               $project: {
                 _id: 0,
-                created_at: "$_id",
+                week: "$_id",
                 totalAmount: 1,
                 count: 1,
               },
@@ -270,8 +275,11 @@ export const getExpenseAllDateAnalytics = async (req, res, next) => {
             {
               $group: {
                 _id: {
-                  year: { $year: "$created_at", timezone: "Asia/Kathmandu" },
-                  month: { $month: "$created_at", timezone: "Asia/Kathmandu" },
+                  $dateToString: {
+                    format: "%Y-%m",
+                    date: "$createdAt",
+                    timezone: "Asia/Kathmandu",
+                  },
                 },
                 totalAmount: { $sum: "$amount" },
                 count: { $sum: 1 },
@@ -283,7 +291,7 @@ export const getExpenseAllDateAnalytics = async (req, res, next) => {
             {
               $project: {
                 _id: 0,
-                created_at: "$_id",
+                month: "$_id",
                 totalAmount: 1,
                 count: 1,
               },

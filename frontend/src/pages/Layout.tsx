@@ -1,7 +1,8 @@
-import { Outlet } from "react-router-dom"
-import Navbar from "@/components/Navbar"
-import Sidebar from "@/components/Siderbar"
-import { SidebarProvider } from "@/context/sidebarContext"
+import { Outlet } from "react-router-dom";
+import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/Siderbar";
+import { SidebarProvider } from "@/context/sidebarContext";
+  import { ToastContainer } from 'react-toastify';
 
 const Layout = () => {
   return (
@@ -10,13 +11,14 @@ const Layout = () => {
         <Sidebar />
         <div className="flex flex-1 flex-col w-full">
           <Navbar />
-          <main className="p-6 overflow-y-auto h-full">
+          <ToastContainer />
+          <main className="overflow-y-auto h-full">
             <Outlet />
           </main>
         </div>
       </div>
     </SidebarProvider>
-  )
-}
+  );
+};
 
-export default Layout
+export default Layout;

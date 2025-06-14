@@ -6,6 +6,11 @@ import Signup from "./pages/Signup";
 import Layout from "./pages/Layout";
 import ExpenseView from "./pages/ExpenseView";
 import { AddExpenseForm } from "./pages/ExpenseForm";
+import IncomeView from "./pages/IncomeView";
+import { AddIncomeForm } from "./pages/IncomeForm";
+import Reports from "./pages/Reports";
+import ProtectedRoute from "./components/ProtectedRoute";
+import UpdateProfile from "./pages/UpdateProfile";
 
 
 function App() {
@@ -15,10 +20,6 @@ function App() {
       element: <Layout />,
       children: [
         {
-          path: "",
-          element: <Home />,
-        },
-        {
           path: "signup",
           element: <Signup />,
         },
@@ -27,12 +28,38 @@ function App() {
           element: <Signin />,
         },
         {
-          path: "expense",
-          element: <ExpenseView />,
-        },
-        {
-          path: "expense/add",
-          element: <AddExpenseForm />,
+          element: <ProtectedRoute />,
+          children: [
+            {
+              path: "",
+              element: <Home />,
+            },
+            {
+              path: "/profile",
+              element: <UpdateProfile />
+            },
+            {
+              path: "expense",
+              element: <ExpenseView />,
+            },
+            {
+              path: "expense/add",
+              element: <AddExpenseForm />,
+            },
+            {
+              path: "income",
+              element: <IncomeView />,
+            },
+            {
+              path: "income/add",
+              element: <AddIncomeForm />,
+            },
+            {
+              path: "report",
+              element: <Reports />,
+            },
+
+          ],
         },
       ],
     },

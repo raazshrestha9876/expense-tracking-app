@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import connectDB from "./config/db";
+import connectDB from "./config/db.js";
 import errorMiddleware from "./middleware/errorMiddleware.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -16,7 +16,12 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("uploads", express.static("uploads"));
@@ -48,9 +53,9 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use(userRoute);
-app.use(expenseRoute);
-app.use(incomeRoute);
+app.use("/api/user", userRoute);
+app.use("/api/expense", expenseRoute);
+app.use("/api/income", incomeRoute);
 
 app.use(errorMiddleware);
 

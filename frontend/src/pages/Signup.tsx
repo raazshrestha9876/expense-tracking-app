@@ -11,21 +11,31 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
-
-const formSchema = z.object({
-  name: z.string(),
-  email: z.string().email(),
-  password: z.string().min(8),
-});
+import { Link, useNavigate } from "react-router-dom";
+import { registerSchema } from "@/schema/user.schema";
+import type { AppDispatch } from "@/redux/store/store";
+import { useDispatch } from "react-redux";
+import { useRegisterMutation } from "@/redux/services/authApi";
+import { setRegister, setError, setLoading } from "@/redux/slices/authSlice";
 
 const Signup = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const dispatch = useDispatch<AppDispatch>();
+  const [register, { isLoading }] = useRegisterMutation();
+  const navigate = useNavigate();
+
+  const form = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof registerSchema>) => {
+    dispatch(setLoading());
+    try {
+      const response = await register(values).unwrap();
+      dispatch(setRegister(response));
+      navigate("/signin")
+    } catch (error: any) {
+      dispatch(setError(error.message));
+    }
   };
 
   return (
@@ -51,7 +61,11 @@ const Signup = () => {
                 <FormItem>
                   <FormLabel className="text-white">Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="shadcn" {...field} className="py-5" />
+                    <Input
+                      placeholder="shadcn"
+                      {...field}
+                      className="py-5 text-white"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -64,7 +78,11 @@ const Signup = () => {
                 <FormItem>
                   <FormLabel className="text-white">Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="shadcn" {...field} className="py-5" />
+                    <Input
+                      placeholder="shadcn"
+                      {...field}
+                      className="py-5 text-white"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -77,15 +95,21 @@ const Signup = () => {
                 <FormItem>
                   <FormLabel className="text-white">Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="shadcn" {...field} className="py-5" />
+                    <Input
+                      placeholder="shadcn"
+                      {...field}
+                      className="py-5 text-white"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <Button type="submit" className="py-5">
-              Submit
+              {isLoading ? "loading..." : "Register"}
             </Button>
+
             <div>
               <Button type="button" variant="outline" className="w-full py-5">
                 <img

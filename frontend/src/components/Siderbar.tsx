@@ -1,4 +1,10 @@
-import { BookText, CircleX, HandCoins, LayoutDashboard, PiggyBank } from "lucide-react";
+import {
+  BookText,
+  CircleX,
+  HandCoins,
+  LayoutDashboard,
+  PiggyBank,
+} from "lucide-react";
 import { useSidebar } from "@/context/sidebarContext";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
@@ -25,7 +31,11 @@ const Sidebar = () => {
               Expenso
             </h1>
           </div>
-          <CircleX  size={30} className="cursor-pointer hover:opacity-80" onClick={toggle} />
+          <CircleX
+            size={30}
+            className="cursor-pointer hover:opacity-80"
+            onClick={toggle}
+          />
         </div>
 
         <nav className="flex-1 py-6">
@@ -49,22 +59,22 @@ const Sidebar = () => {
               </Link>
             </li>
             <li>
-              <a
-                href="#"
+              <Link
+                to="/income"
                 className="flex items-center gap-3 px-3 py-2.5 rounded-md text-slate-600 font-medium hover:bg-slate-100"
               >
                 <PiggyBank className="h-5 w-5 text-slate-500" />
                 <span>Savings</span>
-              </a>
+              </Link>
             </li>
             <li>
-              <a
-                href="#"
+              <Link
+                to="/report"
                 className="flex items-center gap-3 px-3 py-2.5 rounded-md text-slate-600 font-medium hover:bg-slate-100"
               >
                 <BookText className="h-5 w-5 text-slate-500" />
                 <span>Reports</span>
-              </a>
+              </Link>
             </li>
           </ul>
         </nav>

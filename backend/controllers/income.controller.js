@@ -28,7 +28,7 @@ export const getAllIncome = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
-    const skip = (skip = (page - 1) * limit);
+    const skip = ((page - 1) * limit);
 
     const income = await Income.find({ user: req.userId })
       .populate({
@@ -55,7 +55,7 @@ export const getAllIncome = async (req, res, next) => {
 export const updateIncome = async (req, res, next) => {
   try {
     const incomeId = req.params.id;
-    const income = await income.findById(incomeId);
+    const income = await Income.findById(incomeId);
     if (!income) return next(errorHandler(404, "Income not found"));
     const { amount, description, category, source, tags } = req.body;
     const incomeData = {
@@ -106,7 +106,7 @@ export const getDailyIncomeAnalytics = async (req, res, next) => {
           _id: {
             $dateToString: {
               format: "%Y-%m-%d",
-              date: "$created_at",
+              date: "$createdAt",
               timezone: "Asia/Kathmandu",
             },
           },
@@ -120,7 +120,7 @@ export const getDailyIncomeAnalytics = async (req, res, next) => {
       {
         $project: {
           _id: 0,
-          created_at: "$_id",
+          date: "$_id",
           totalAmount: 1,
           count: 1,
         },

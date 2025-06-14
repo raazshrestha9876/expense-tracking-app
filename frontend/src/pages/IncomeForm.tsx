@@ -17,7 +17,22 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
-
+const formSchema = z.object({
+  amount: z
+    .string()
+    .min(1, "Amount is required")
+    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      message: "Amount must be a positive number",
+    }),
+  date: z.date({
+    required_error: "Date is required",
+  }),
+  category: z.string().min(1, "Category is required"),
+  paymentMethod: z.enum(["Cash", "Credit Card", "Debit Card"], {
+    required_error: "Payment method is required",
+  }),
+  tags: z.array(z.string()).optional(),
+})
 
 type FormData = z.infer<typeof formSchema>
 
@@ -37,11 +52,11 @@ const categories = [
   "Other",
 ]
 
-interface AddExpenseFormProps {
+interface AddIncomeFormProps {
   onSubmit?: (data: FormData) => void
 }
 
-export function AddExpenseForm({ onSubmit }: AddExpenseFormProps) {
+export function AddIncomeForm({ onSubmit }: AddIncomeFormProps) {
   const [tagInput, setTagInput] = React.useState("")
   const [tags, setTags] = React.useState<string[]>([])
 
@@ -62,7 +77,7 @@ export function AddExpenseForm({ onSubmit }: AddExpenseFormProps) {
       tags: tags,
     }
 
-    console.log("Expense data:", { ...formattedData, amount: Number(formattedData.amount) })
+    console.log("Income data:", { ...formattedData, amount: Number(formattedData.amount) })
 
     if (onSubmit) {
       onSubmit(formattedData)
@@ -89,9 +104,9 @@ export function AddExpenseForm({ onSubmit }: AddExpenseFormProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Plus className="h-5 w-5" />
-          Add New Expense
+          Add New Income
         </CardTitle>
-        <CardDescription>Enter the details of your expense to track your spending.</CardDescription>
+        <CardDescription>Enter the details of your Income to track your spending.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -230,7 +245,7 @@ export function AddExpenseForm({ onSubmit }: AddExpenseFormProps) {
 
             <div className="flex gap-4 pt-4">
               <Button type="submit" className="flex-1">
-                Add Expense
+                Add Income
               </Button>
               <Button
                 type="button"

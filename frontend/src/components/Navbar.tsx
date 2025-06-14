@@ -1,13 +1,41 @@
 "use client";
 
-import { Menu, Bell, Search } from "lucide-react";
+import { Menu, Bell, Search, LogOutIcon, User2Icon } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSidebar } from "@/context/sidebarContext";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useLogoutMutation } from "@/redux/services/authApi";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/redux/store/store";
+import { setError, setLoading, setLogout } from "@/redux/slices/authSlice";
+import { useNavigate } from "react-router-dom";
+import { AvatarFallback } from "@radix-ui/react-avatar";
 
 const Navbar = () => {
   const { toggle }: any = useSidebar();
+  const dispatch = useDispatch<AppDispatch>();
+  const [logout, { isLoading }] = useLogoutMutation();
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useSelector(
+    (state: RootState) => state.auth
+  );
+  
+
+  const handleLogout = async () => {
+    dispatch(setLoading());
+    try {
+      await logout();
+      dispatch(setLogout());
+    } catch (error: any) {
+      dispatch(setError(error.message));
+    }
+  };
 
   return (
     <header className="w-full bg-white border-b border-slate-200 flex justify-between items-center py-3 px-4 sticky top-0 z-30">
@@ -42,15 +70,56 @@ const Navbar = () => {
           <span className="sr-only">Notifications</span>
         </Button>
 
-        <div className="flex items-center gap-3 border-l border-slate-200 pl-3">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="https://github.com/shadcn.png" />
-          </Avatar>
-          <div className="hidden md:block">
-            <p className="text-sm font-medium text-slate-700">Raaz Shrestha</p>
-            <p className="text-xs text-slate-500">Admin</p>
-          </div>
-        </div>
+        <Popover>
+          <PopoverTrigger>
+            <div className="flex items-center cursor-pointer gap-3 border-l border-slate-200 pl-3">
+              {isAuthenticated ? (
+                <>
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="https://thumbs.dreamstime.com/b/generic-person-gray-photo-placeholder-man-silhouette-white-background-144511705.jpg" />
+                    <AvatarFallback>{user?.name.slice(0, 1)}</AvatarFallback>
+                  </Avatar>
+                  <div className="hidden md:block">
+                    <p className="text-sm font-medium text-slate-700">
+                      {user?.name}
+                    </p>
+                    <p className="text-xs text-slate-500">{user?.gender}</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="https://thumbs.dreamstime.com/b/generic-person-gray-photo-placeholder-man-silhouette-white-background-144511705.jpg" />
+                    <AvatarFallback>G</AvatarFallback>
+                  </Avatar>
+                  <div className="hidden md:block">
+                    <p className="text-sm font-medium text-slate-700">User</p>
+                    <p className="text-xs text-slate-500">Guest</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-[250px] mr-4 mt-2">
+            <div className="flex flex-col gap-4 p-2">
+              <li className="flex flex-start gap-2 cursor-pointer">
+                <LogOutIcon />
+                <p onClick={handleLogout} className="hover:underline">
+                  {isLoading ? "Loading..." : "Logout"}
+                </p>
+              </li>
+              <li className="flex flex-start gap-2 cursor-pointer">
+                <User2Icon />
+                <p
+                  onClick={() => navigate("/profile")}
+                  className="hover:underline"
+                >
+                  {isLoading ? "Loading..." : "Profile Settings"}
+                </p>
+              </li>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
     </header>
   );

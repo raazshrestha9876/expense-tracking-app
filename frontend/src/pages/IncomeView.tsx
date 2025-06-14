@@ -1,23 +1,24 @@
-import { ExpenseTable } from "@/components/ExpenseTable";
+
+import { IncomeTable } from "@/components/IncomeTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, CreditCard, DollarSign, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const summaryData = {
-  totalExpenses: 2317.27,
+  totalIncome: 2317.27,
   monthlyAverage: 772.42,
   thisMonth: 1456.78,
   transactionCount: 23,
 }
 
-const ExpenseView = () => {
+const IncomeView = () => {
   const navigate = useNavigate();
   return (
     <div className="p-10">
       <div className="flex justify-between ">
-        <h1 className="text-4xl font-semibold">Expense Management</h1>
-        <Button onClick={() => navigate("add")}>Add Expense</Button>
+        <h1 className="text-4xl font-semibold">Income Management</h1>
+        <Button onClick={() => navigate("add")}>Add Income</Button>
       </div>
       
       {/* Summary Cards */}
@@ -25,13 +26,13 @@ const ExpenseView = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Total Expenses
+              Total Income
             </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${summaryData.totalExpenses.toLocaleString()}
+              ${summaryData.totalIncome.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">All time</p>
           </CardContent>
@@ -79,9 +80,9 @@ const ExpenseView = () => {
         </Card>
       </div>
 
-      <ExpenseTable />
+      <IncomeTable />
     </div>
   );
 };
 
-export default ExpenseView;
+export default IncomeView;
