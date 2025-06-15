@@ -9,3 +9,11 @@ export const addExpenseSchema = z.object({
   }),
   tags: z.array(z.string()).optional(),
 });
+
+export const updateExpenseSchema = z.object({
+  amount: z.number().min(5).optional(),
+  description: z.string().optional(),
+  category: z.string().optional(),
+  paymentMethod: z.enum(["Cash", "Credit Card", "Debit Card"]).optional(),
+  tags: z.array(z.string()).optional(),
+});

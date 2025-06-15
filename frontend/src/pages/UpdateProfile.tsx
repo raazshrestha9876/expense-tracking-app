@@ -47,12 +47,7 @@ import {
   useGetUserQuery,
   useUpdateUserMutation,
 } from "@/redux/services/authApi";
-import {
-  fetchUser,
-  setError,
-  setLoading,
-  setUpdatedUser,
-} from "@/redux/slices/authSlice";
+import { fetchUser } from "@/redux/slices/authSlice";
 
 import { useEffect, useRef, useState } from "react";
 import PasswordChangeForm from "@/components/PasswordChangeForm";
@@ -106,17 +101,14 @@ const UpdateProfile = () => {
   }, [form]);
 
   const onSubmit = async (data: z.infer<typeof updateProfileSchema>) => {
-    dispatch(setLoading());
     try {
       const payload = {
         ...data,
         image: typeof data.image === "string" ? data.image : undefined,
       };
-      const response = await updateUser(payload).unwrap();
-      dispatch(setUpdatedUser(response));
+      await updateUser(payload).unwrap();
       toast.success("Profile updated successfully");
     } catch (error: any) {
-      dispatch(setError(error.message));
       toast.error(error.message);
     }
   };

@@ -1,6 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   flexRender,
   getCoreRowModel,
@@ -8,13 +9,18 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table"
-import type { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+} from "@tanstack/react-table";
+import type {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+} from "@tanstack/react-table";
+import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -23,86 +29,33 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import type { Expense } from "@/redux/types/expense";
+import { useGetExpensesApiQuery } from "@/redux/services/expenseApi";
 
-const data: Expense[] = [
-  {
-    id: "exp_001",
-    user: "user_123",
-    amount: 45.99,
-    date: new Date("2024-01-15"),
-    category: "Food & Dining",
-    paymentMethod: "Credit Card",
-    tags: ["lunch", "restaurant"],
-    createdAt: new Date("2024-01-15"),
-    updatedAt: new Date("2024-01-15"),
-  },
-  {
-    id: "exp_002",
-    user: "user_123",
-    amount: 1200.0,
-    date: new Date("2024-01-01"),
-    category: "Housing",
-    paymentMethod: "Debit Card",
-    tags: ["rent", "monthly"],
-    createdAt: new Date("2024-01-01"),
-    updatedAt: new Date("2024-01-01"),
-  },
-  {
-    id: "exp_003",
-    user: "user_123",
-    amount: 89.5,
-    date: new Date("2024-01-10"),
-    category: "Transportation",
-    paymentMethod: "Cash",
-    tags: ["gas", "car"],
-    createdAt: new Date("2024-01-10"),
-    updatedAt: new Date("2024-01-10"),
-  },
-  {
-    id: "exp_004",
-    user: "user_123",
-    amount: 25.0,
-    date: new Date("2024-01-12"),
-    category: "Entertainment",
-    paymentMethod: "Credit Card",
-    tags: ["movie", "weekend"],
-    createdAt: new Date("2024-01-12"),
-    updatedAt: new Date("2024-01-12"),
-  },
-  {
-    id: "exp_005",
-    user: "user_123",
-    amount: 156.78,
-    date: new Date("2024-01-08"),
-    category: "Shopping",
-    paymentMethod: "Debit Card",
-    tags: ["groceries", "weekly"],
-    createdAt: new Date("2024-01-08"),
-    updatedAt: new Date("2024-01-08"),
-  },
-]
 
-export type Expense = {
-  id: string
-  user: string
-  amount: number
-  date: Date
-  category: string
-  paymentMethod: "Cash" | "Credit Card" | "Debit Card"
-  tags: string[]
-  createdAt: Date
-  updatedAt: Date
-}
-
-export const columns: ColumnDef<Expense>[] = [
+const getColumns = (
+  onExpenseEditSheetOpen: (index: number) => void,
+  openExpenseDeleteDialog: (index: number) => void,
+  onExpenseDetailSheetOpen: (index: number) => void,
+): ColumnDef<Expense>[] => [
   {
     id: "select",
     header: ({ table }) => (
       <Checkbox
-        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
@@ -118,103 +71,139 @@ export const columns: ColumnDef<Expense>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "date",
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-          Date
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    accessorKey: "createdAt",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Date
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => {
-      const date = row.getValue("date") as Date
-      return <p>{date.toLocaleDateString()}</p>
+      const date = new Date(row.getValue("createdAt") as string);
+      return <p>{date.toLocaleDateString()}</p>;
     },
+  },
+  {
+    accessorKey: "description",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Description
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <p className="font-medium">{row.getValue("description")}</p>
+    ),
   },
   {
     accessorKey: "category",
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-          Category
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => <p className="font-medium">{row.getValue("category")}</p>,
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Category
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <p className="font-medium ml-4">{row.getValue("category")}</p>
+    ),
   },
   {
     accessorKey: "amount",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Amount
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Amount
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => {
-      const amount = Number.parseFloat(row.getValue("amount"))
+      const amount = parseFloat(row.getValue("amount"));
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
-      }).format(amount)
-
-      return <p className="font-medium ml-4">{formatted}</p>
+      }).format(amount);
+      return <p className="font-medium ml-4">{formatted}</p>;
     },
   },
   {
     accessorKey: "paymentMethod",
     header: "Payment Method",
     cell: ({ row }) => {
-      const method = row.getValue("paymentMethod") as string
+      const method = row.getValue("paymentMethod") as string;
       return (
         <Badge variant="outline" className="capitalize">
           {method}
         </Badge>
-      )
+      );
     },
   },
   {
     id: "actions",
     header: "Actions",
     enableHiding: false,
-    cell: () => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-           
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Edit expense</DropdownMenuItem>
-            <DropdownMenuItem>View details</DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">Delete expense</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
-    },
+    cell: ({ row }) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => onExpenseEditSheetOpen(row.index)}>
+            Edit expense
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onExpenseDetailSheetOpen(row.index)}>View details</DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => openExpenseDeleteDialog(row.index)}
+            className="text-red-600"
+          >
+            Delete expense
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
   },
-]
+];
 
-export function ExpenseTable() {
-  const [sorting, setSorting] = React.useState<SortingState>([{ id: "date", desc: true }])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
+interface ExpenseTableProps {
+  onExpenseEditSheetOpen: (index: number) => void;
+  onExpenseDeleteDialogOpen: (index: number) => void;
+  onExpenseDetailSheetOpen: (index: number) => void;
+}
+
+export function ExpenseTable({
+  onExpenseEditSheetOpen,
+  onExpenseDeleteDialogOpen,
+  onExpenseDetailSheetOpen,
+}: ExpenseTableProps) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+
+  const { data, isLoading } = useGetExpensesApiQuery();
+
 
   const table = useReactTable({
-    data,
-    columns,
+    data: data?.expenses ?? [],
+    columns: getColumns(onExpenseEditSheetOpen, onExpenseDeleteDialogOpen, onExpenseDetailSheetOpen),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -229,15 +218,19 @@ export function ExpenseTable() {
       columnVisibility,
       rowSelection,
     },
-  })
+  });
 
   return (
     <div className="w-full">
       <div className="flex items-center py-4 gap-4">
         <Input
           placeholder="Filter by category..."
-          value={(table.getColumn("category")?.getFilterValue() as string) ?? ""}
-          onChange={(event) => table.getColumn("category")?.setFilterValue(event.target.value)}
+          value={
+            (table.getColumn("category")?.getFilterValue() as string) ?? ""
+          }
+          onChange={(event) =>
+            table.getColumn("category")?.setFilterValue(event.target.value)
+          }
           className="max-w-sm"
         />
         <DropdownMenu>
@@ -250,18 +243,16 @@ export function ExpenseTable() {
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                )
-              })}
+              .map((column) => (
+                <DropdownMenuCheckboxItem
+                  key={column.id}
+                  className="capitalize"
+                  checked={column.getIsVisible()}
+                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                >
+                  {column.id}
+                </DropdownMenuCheckboxItem>
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -270,28 +261,55 @@ export function ExpenseTable() {
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  )
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
+
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              Array(5)
+                .fill(0)
+                .map((_, rowIndex) => (
+                  <TableRow key={`skeleton-row-${rowIndex}`}>
+                    {table.getAllColumns().map((column) => (
+                      <TableCell key={`skeleton-cell-${rowIndex}-${column.id}`}>
+                        <Skeleton className="h-4 w-full max-w-[150px]" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+            ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={table.getAllColumns().length}
+                  className="h-24 text-center"
+                >
                   No expenses found.
                 </TableCell>
               </TableRow>
@@ -301,8 +319,8 @@ export function ExpenseTable() {
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
-          selected.
+          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
         <div className="space-x-2">
           <Button
@@ -313,11 +331,16 @@ export function ExpenseTable() {
           >
             Previous
           </Button>
-          <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
             Next
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }

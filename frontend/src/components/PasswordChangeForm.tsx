@@ -24,14 +24,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { updatePasswordSchema } from "@/schema/user.schema";
 import { useUpdateUserPasswordMutation } from "@/redux/services/authApi";
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "@/redux/store/store";
-import { setError, setLoading } from "@/redux/slices/authSlice";
+
 
 export default function PasswordChangeForm() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const dispatch = useDispatch<AppDispatch>();
   const [updateUserPassword] = useUpdateUserPasswordMutation();
 
   const form = useForm<z.infer<typeof updatePasswordSchema>>({
@@ -43,15 +40,14 @@ export default function PasswordChangeForm() {
   });
 
   const onSubmit = async (data: z.infer<typeof updatePasswordSchema>) => {
-    dispatch(setLoading());
     try {
       await updateUserPassword({
         password: data.password,
       });
       toast.success("Password changed successfully!");
       form.reset();
-    } catch (error) {
-      dispatch(setError(error));
+    } catch (error: any) {
+      toast.error(error.message);
     }
   };
 

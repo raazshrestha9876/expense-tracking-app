@@ -17,11 +17,9 @@ import { useDispatch } from "react-redux";
 import type { AppDispatch } from "@/redux/store/store";
 import { useGetUserQuery, useLoginMutation } from "@/redux/services/authApi";
 import {
-  setError,
-  setLoading,
   setLogin,
-  setUpdatedUser,
 } from "@/redux/slices/authSlice";
+import { toast } from "react-toastify";
 
 const Signin = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -34,17 +32,13 @@ const Signin = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    dispatch(setLoading());
     try {
-      await login(values).unwrap();
-      dispatch(setLogin());
-      const { data: userData } = await refetch();
-      if (userData) {
-        dispatch(setUpdatedUser(userData));
-      }
+      const response = await login(values).unwrap();
+      dispatch(setLogin(response));
+      await refetch();
       navigate("/");
     } catch (error: any) {
-      dispatch(setError(error.message || "Login failed"));
+      toast.error(error.message || "Invalid Login")
     }
   };
 

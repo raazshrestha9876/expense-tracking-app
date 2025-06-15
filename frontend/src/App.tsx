@@ -5,7 +5,7 @@ import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import Layout from "./pages/Layout";
 import ExpenseView from "./pages/ExpenseView";
-import { AddExpenseForm } from "./pages/ExpenseForm";
+import { AddExpenseForm } from "./pages/AddExpenseForm";
 import IncomeView from "./pages/IncomeView";
 import { AddIncomeForm } from "./pages/IncomeForm";
 import Reports from "./pages/Reports";

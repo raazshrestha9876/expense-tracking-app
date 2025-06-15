@@ -13,9 +13,10 @@ import {
 import { useLogoutMutation } from "@/redux/services/authApi";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store/store";
-import { setError, setLoading, setLogout } from "@/redux/slices/authSlice";
+import { setLogout } from "@/redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import { AvatarFallback } from "@radix-ui/react-avatar";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const { toggle }: any = useSidebar();
@@ -25,15 +26,13 @@ const Navbar = () => {
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.auth
   );
-  
 
   const handleLogout = async () => {
-    dispatch(setLoading());
     try {
       await logout();
       dispatch(setLogout());
     } catch (error: any) {
-      dispatch(setError(error.message));
+      toast.error(error.message);
     }
   };
 

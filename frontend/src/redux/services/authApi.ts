@@ -33,12 +33,17 @@ export const authApi = createApi({
       invalidatesTags: ["User"],
     }),
 
-    login: builder.mutation<void, LoginRequest>({
+    login: builder.mutation<User, LoginRequest>({
       query: (credentials) => ({
         url: "/user/login",
         method: "POST",
         body: credentials,
       }),
+      transformResponse: (response: {
+        success: boolean;
+        message: string;
+        data: User;
+      }) => response.data,
       invalidatesTags: ["User"],
     }),
 

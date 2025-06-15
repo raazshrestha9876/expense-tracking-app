@@ -1,25 +1,80 @@
+import { ExpenseDeleteForDialog } from "@/components/ExpenseDialogForDelete";
+import { ExpenseSheetForUpdate } from "@/components/ExpenseSheetForUpdate";
 import { ExpenseTable } from "@/components/ExpenseTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useGetExpensesApiQuery } from "@/redux/services/expenseApi";
+import {
+  openExpenseDeleteDialog,
+  openExpenseDetailSheet,
+  openExpenseEditSheet,
+} from "@/redux/slices/expenseSlice";
+import { type AppDispatch, type RootState } from "@/redux/store/store";
+
 import { Calendar, CreditCard, DollarSign, TrendingUp } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import ExpenseDetailSheet from "@/components/ExpenseDetailSheet";
 
 const summaryData = {
   totalExpenses: 2317.27,
   monthlyAverage: 772.42,
   thisMonth: 1456.78,
   transactionCount: 23,
-}
+};
 
 const ExpenseView = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const {
+    selectedIndex,
+    isExpenseEditSheetOpen,
+    isExpenseDeleteDialogOpen,
+    isExpenseDetailSheetOpen,
+  } = useSelector((state: RootState) => state.expenses);
+  const { data } = useGetExpensesApiQuery();
+
+  const expense = data?.expenses[selectedIndex];
+
+  const handleExpenseEditSheetOpen = (index: number) => {
+    dispatch(openExpenseEditSheet({ index: index, open: true }));
+  };
+
+  const handleExpenseDeleteDialogOpen = (index: number) => {
+    dispatch(openExpenseDeleteDialog({ index: index, open: true }));
+  };
+
+  const handleExpenseDetailSheetOpen = (index: number) => {
+    dispatch(openExpenseDetailSheet({ index: index, open: true }));
+  };
+
   return (
     <div className="p-10">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/expense">Expense</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/expense/add">Add</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+        </BreadcrumbList>
+      </Breadcrumb>
       <div className="flex justify-between ">
-        <h1 className="text-4xl font-semibold">Expense Management</h1>
+        <h1 className="text-2xl font-semibold mt-2">Expense Management</h1>
         <Button onClick={() => navigate("add")}>Add Expense</Button>
       </div>
-      
+
       {/* Summary Cards */}
       <div className="grid mt-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
@@ -79,7 +134,16 @@ const ExpenseView = () => {
         </Card>
       </div>
 
-      <ExpenseTable />
+      <ExpenseTable
+        onExpenseDetailSheetOpen={handleExpenseDetailSheetOpen}
+        onExpenseEditSheetOpen={handleExpenseEditSheetOpen}
+        onExpenseDeleteDialogOpen={handleExpenseDeleteDialogOpen}
+      />
+      {isExpenseEditSheetOpen && <ExpenseSheetForUpdate expense={expense!} />}
+      {isExpenseDeleteDialogOpen && (
+        <ExpenseDeleteForDialog expense={expense!} />
+      )}
+      {isExpenseDetailSheetOpen && <ExpenseDetailSheet expense={expense!} />}
     </div>
   );
 };

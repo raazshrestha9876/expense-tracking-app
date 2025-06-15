@@ -13,13 +13,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import { registerSchema } from "@/schema/user.schema";
-import type { AppDispatch } from "@/redux/store/store";
-import { useDispatch } from "react-redux";
 import { useRegisterMutation } from "@/redux/services/authApi";
-import { setRegister, setError, setLoading } from "@/redux/slices/authSlice";
+import { toast } from "react-toastify";
 
 const Signup = () => {
-  const dispatch = useDispatch<AppDispatch>();
+
   const [register, { isLoading }] = useRegisterMutation();
   const navigate = useNavigate();
 
@@ -28,13 +26,11 @@ const Signup = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
-    dispatch(setLoading());
     try {
-      const response = await register(values).unwrap();
-      dispatch(setRegister(response));
+      await register(values).unwrap();
       navigate("/signin")
     } catch (error: any) {
-      dispatch(setError(error.message));
+      toast.error(error.message)
     }
   };
 
