@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 import Expense from "../models/expense.model.js";
 import errorHandler from "../utils/errorHandler.js";
 import { io } from "../app.js";
@@ -24,15 +24,15 @@ export const addExpense = async (req, res, next) => {
     });
     await notification.save();
 
-    // io.to(req.userId.toString().emit("new_notification"), {
-    //   _id: notification._id,
-    //   message: notification.message,
-    //   isRead: notification.isRead,
-    // });
+    io.to(req.userId.toString()).emit("new_notification", {
+      _id: notification._id,
+      message: notification.message,
+      isRead: notification.isRead,
+    });
 
     res.status(201).json({
       success: true,
-      message: " Expense added successfully",
+      message: "Expense added successfully",
       data: expense,
     });
   } catch (error) {
@@ -125,6 +125,87 @@ export const deleteExpense = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Expense deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getExpenseNotification = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const notifications = await Notification.find({
+      user: userId,
+    }).sort({
+      createdAt: -1,
+    });
+    res.status(200).json({
+      success: true,
+      data: notifications,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getExpenseCardStats = async (req, res, next) => {
+  try {
+    const result1 = await Expense.aggregate([
+      { $match: { user: new mongoose.Types.ObjectId(req.userId) } },
+      {
+        $group: {
+          _id: null,
+          totalExpense: { $sum: "$amount" },
+          totalTransaction: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          totalExpense: 1,
+          totalTransaction: 1,
+        },
+      },
+    ]);
+
+    const result2 = await Expense.aggregate([
+      {
+        $match: { user: new mongoose.Types.ObjectId(req.userId) },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m",
+              date: "$createdAt",
+              timezone: "Asia/Kathmandu",
+            },
+          },
+          totalMonthExpense: { $sum: "$amount" },
+          AverageMonthExpense: { $avg: "$amount" },
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          totalMonthExpense: 1,
+          AverageMonthExpense: 1,
+        },
+      },
+    ]);
+    res.status(200).json({
+      success: true,
+      data: {
+        totalExpense: result1[0].totalExpense,
+        totalTransaction: result1[0].totalTransaction,
+        totalMonthExpense: result2[0].totalMonthExpense,
+        AverageMonthExpense: result2[0].AverageMonthExpense,
+      },
     });
   } catch (error) {
     next(error);

@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Loader2, } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -84,9 +84,8 @@ export function ExpenseSheetForUpdate({ expense }: ExpenseSheetForUpdateProps) {
         expenseId: expense._id,
         expenseData: parsedData,
       }).unwrap();
-      dispatch(openExpenseEditSheet({ index: -1, open: false }));
       toast.success(" Expense updated successfully");
-
+      handleExpenseSheetClose();
       form.reset();
     } catch (error: any) {
       toast.error(error.message);

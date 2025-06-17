@@ -6,6 +6,7 @@ const initialState: ExpenseState = {
   isExpenseEditSheetOpen: false,
   isExpenseDeleteDialogOpen: false,
   isExpenseDetailSheetOpen: false,
+  isExpenseNotificationSheetOpen: false,
 };
 
 const expenseSlice = createSlice({
@@ -24,10 +25,17 @@ const expenseSlice = createSlice({
       state.selectedIndex = action.payload.index;
       state.isExpenseDetailSheetOpen = action.payload.open;
     },
+    openExpenseNotificationSheet: (state, action) => {
+      state.isExpenseNotificationSheetOpen = action.payload.open;
+    },
   },
 });
 
-export const { openExpenseEditSheet, openExpenseDeleteDialog, openExpenseDetailSheet } =
-  expenseSlice.actions;
+export const {
+  openExpenseEditSheet,
+  openExpenseDeleteDialog,
+  openExpenseDetailSheet,
+  openExpenseNotificationSheet,
+} = expenseSlice.actions;
 
 export default expenseSlice.reducer;

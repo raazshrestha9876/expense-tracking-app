@@ -9,8 +9,8 @@ import {
   Folder,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -73,7 +73,7 @@ export default function ExpenseDetailSheet({ expense }: ExpenseDetailProps) {
                 <CardContent>
                   <CardTitle className="text-sm flex items-center gap-2">
                     <Folder className="h-4 w-4 text-blue-600" />
-                 <p className="text-[12px]">Category</p>
+                    <p className="text-[12px]">Category</p>
                   </CardTitle>
                   <div className="font-medium mt-1">{expense.category}</div>
                 </CardContent>
@@ -85,7 +85,9 @@ export default function ExpenseDetailSheet({ expense }: ExpenseDetailProps) {
                     <CreditCard className="h-4 w-4 text-purple-600" />
                     <p className="text-[12px]">Payment Method</p>
                   </CardTitle>
-                  <div className="font-medium mt-1">{expense.paymentMethod}</div>
+                  <div className="font-medium mt-1">
+                    {expense.paymentMethod}
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -111,11 +113,21 @@ export default function ExpenseDetailSheet({ expense }: ExpenseDetailProps) {
                   Tags
                 </CardTitle>
                 <div className="flex mt-2 flex-wrap gap-2">
-                  {expense.tags.map((tag, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
-                      {tag}
+                  {expense.tags.length > 0 ? (
+                    expense.tags.map((tag, index) => (
+                      <Badge
+                        key={index}
+                        variant="secondary"
+                        className="text-xs"
+                      >
+                        {tag}
+                      </Badge>
+                    ))
+                  ) : (
+                    <Badge variant="secondary" className="text-xs">
+                      No tags
                     </Badge>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>

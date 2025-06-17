@@ -17,6 +17,7 @@ import { setLogout } from "@/redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import { toast } from "react-toastify";
+import { expenseApi } from "@/redux/services/expenseApi";
 
 const Navbar = () => {
   const { toggle }: any = useSidebar();
@@ -31,6 +32,7 @@ const Navbar = () => {
     try {
       await logout();
       dispatch(setLogout());
+      dispatch(expenseApi.util.invalidateTags(["Expense"]));
     } catch (error: any) {
       toast.error(error.message);
     }

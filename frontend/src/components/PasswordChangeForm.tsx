@@ -25,7 +25,6 @@ import { Input } from "@/components/ui/input";
 import { updatePasswordSchema } from "@/schema/user.schema";
 import { useUpdateUserPasswordMutation } from "@/redux/services/authApi";
 
-
 export default function PasswordChangeForm() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -33,10 +32,6 @@ export default function PasswordChangeForm() {
 
   const form = useForm<z.infer<typeof updatePasswordSchema>>({
     resolver: zodResolver(updatePasswordSchema),
-    defaultValues: {
-      password: "",
-      confirmPassword: "",
-    },
   });
 
   const onSubmit = async (data: z.infer<typeof updatePasswordSchema>) => {
@@ -74,6 +69,7 @@ export default function PasswordChangeForm() {
                         type={showNewPassword ? "text" : "password"}
                         placeholder="Enter new password"
                         className="bg-white"
+                        autoComplete="new-password"
                         {...field}
                       />
                       <Button

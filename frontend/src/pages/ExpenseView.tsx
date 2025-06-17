@@ -3,11 +3,15 @@ import { ExpenseSheetForUpdate } from "@/components/ExpenseSheetForUpdate";
 import { ExpenseTable } from "@/components/ExpenseTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetExpensesApiQuery } from "@/redux/services/expenseApi";
+import {
+  useGetExpensesApiQuery,
+  useGetExpenseStatsApiQuery,
+} from "@/redux/services/expenseApi";
 import {
   openExpenseDeleteDialog,
   openExpenseDetailSheet,
   openExpenseEditSheet,
+  openExpenseNotificationSheet,
 } from "@/redux/slices/expenseSlice";
 import { type AppDispatch, type RootState } from "@/redux/store/store";
 
@@ -22,13 +26,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import ExpenseDetailSheet from "@/components/ExpenseDetailSheet";
-
-const summaryData = {
-  totalExpenses: 2317.27,
-  monthlyAverage: 772.42,
-  thisMonth: 1456.78,
-  transactionCount: 23,
-};
+import ExpenseNotificationSheet from "@/components/ExpenseNotificationSheet";
 
 const ExpenseView = () => {
   const navigate = useNavigate();
@@ -39,8 +37,12 @@ const ExpenseView = () => {
     isExpenseEditSheetOpen,
     isExpenseDeleteDialogOpen,
     isExpenseDetailSheetOpen,
+    isExpenseNotificationSheetOpen,
   } = useSelector((state: RootState) => state.expenses);
+
   const { data } = useGetExpensesApiQuery();
+  const { data: expenseStats } = useGetExpenseStatsApiQuery();
+
 
   const expense = data?.expenses[selectedIndex];
 
@@ -54,6 +56,10 @@ const ExpenseView = () => {
 
   const handleExpenseDetailSheetOpen = (index: number) => {
     dispatch(openExpenseDetailSheet({ index: index, open: true }));
+  };
+
+  const handleExpenseNotificationSheetOpen = () => {
+    dispatch(openExpenseNotificationSheet({ open: true }));
   };
 
   return (
@@ -72,7 +78,23 @@ const ExpenseView = () => {
       </Breadcrumb>
       <div className="flex justify-between ">
         <h1 className="text-2xl font-semibold mt-2">Expense Management</h1>
-        <Button onClick={() => navigate("add")}>Add Expense</Button>
+        <div className="flex gap-2">
+        <Button
+          onClick={() => {
+            console.log("hello");
+            navigate("/expense/add");
+          }}
+          className="cursor-pointer"
+        >
+          Add Expense
+        </Button>
+         <Button
+          onClick={handleExpenseNotificationSheetOpen}
+          className="cursor-pointer"
+        >
+          Notification
+        </Button>
+        </div>
       </div>
 
       {/* Summary Cards */}
@@ -86,7 +108,7 @@ const ExpenseView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${summaryData.totalExpenses.toLocaleString()}
+              ${expenseStats?.totalExpense}
             </div>
             <p className="text-xs text-muted-foreground">All time</p>
           </CardContent>
@@ -99,9 +121,9 @@ const ExpenseView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${summaryData.thisMonth.toLocaleString()}
+              ${expenseStats?.totalMonthExpense}
             </div>
-            <p className="text-xs text-muted-foreground">Current month</p>
+            <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
 
@@ -114,9 +136,9 @@ const ExpenseView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${summaryData.monthlyAverage.toLocaleString()}
+              ${expenseStats?.AverageMonthExpense}
             </div>
-            <p className="text-xs text-muted-foreground">Last 3 months</p>
+            <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
 
@@ -127,9 +149,9 @@ const ExpenseView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {summaryData.transactionCount}
+              ${expenseStats?.totalTransaction}
             </div>
-            <p className="text-xs text-muted-foreground">This month</p>
+            <p className="text-xs text-muted-foreground">All Time</p>
           </CardContent>
         </Card>
       </div>
@@ -144,6 +166,7 @@ const ExpenseView = () => {
         <ExpenseDeleteForDialog expense={expense!} />
       )}
       {isExpenseDetailSheetOpen && <ExpenseDetailSheet expense={expense!} />}
+      {isExpenseNotificationSheetOpen && <ExpenseNotificationSheet />}
     </div>
   );
 };

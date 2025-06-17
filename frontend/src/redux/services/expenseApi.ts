@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { Expense } from "../types/expense";
+import type { Expense, ExpenseNotification } from "../types/expense";
 import type { z } from "zod";
 import type {
   addExpenseSchema,
@@ -77,6 +77,43 @@ export const expenseApi = createApi({
       }),
       invalidatesTags: ["Expense"],
     }),
+
+    getExpenseNotification: builder.query<ExpenseNotification[], void>({
+      query: () => ({
+        url: "/expense/get-expense-notification",
+        method: "GET",
+      }),
+      transformResponse: (response: {
+        success: boolean;
+        data: ExpenseNotification[];
+      }) => response.data,
+      providesTags: ["Expense"],
+    }),
+
+    getExpenseStatsApi: builder.query<
+      {
+        totalExpense: number;
+        totalTransaction: number;
+        totalMonthExpense: number;
+        AverageMonthExpense: number;
+      },
+      void
+    >({
+      query: () => ({
+        url: "/expense/expense-stats",
+        method: "GET",
+      }),
+      transformResponse: (response: {
+        success: boolean;
+        data: {
+          totalExpense: number;
+          totalTransaction: number;
+          totalMonthExpense: number;
+          AverageMonthExpense: number;
+        };
+      }) => response.data,
+      providesTags: ["Expense"],
+    }),
   }),
 });
 
@@ -85,4 +122,6 @@ export const {
   useGetExpensesApiQuery,
   useUpdateExpenseApiMutation,
   useDeleteExpenseApiMutation,
+  useGetExpenseStatsApiQuery,
+  useGetExpenseNotificationQuery,
 } = expenseApi;

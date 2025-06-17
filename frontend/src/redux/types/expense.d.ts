@@ -9,9 +9,17 @@ export interface Expense {
   updatedAt: Date;
 }
 
+export interface ExpenseNotification {
+  _id: string;
+  message: string;
+  isRead: boolean;
+  createdAt: Date;
+}
+
 export interface ExpenseState {
   selectedIndex: number;
   isExpenseEditSheetOpen: boolean;
   isExpenseDeleteDialogOpen: boolean;
   isExpenseDetailSheetOpen: boolean;
+  isExpenseNotificationSheetOpen: boolean;
 }

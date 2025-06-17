@@ -32,7 +32,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { addExpenseSchema } from "@/schema/expense.schema";
 import { useState } from "react";
-import { useAddExpenseApiMutation } from "@/redux/services/expenseApi";
+import { useAddExpenseApiMutation, useGetExpensesApiQuery } from "@/redux/services/expenseApi";
 import { toast } from "react-toastify";
 import {
   Breadcrumb,
@@ -63,6 +63,7 @@ export function AddExpenseForm() {
   const [tags, setTags] = useState<string[]>([]);
   const [addExpenseApi, { isLoading: isSubmitting }] =
     useAddExpenseApiMutation();
+
 
   const form = useForm<z.infer<typeof addExpenseSchema>>({
     resolver: zodResolver(addExpenseSchema),

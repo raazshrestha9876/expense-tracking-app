@@ -16,10 +16,9 @@ import { loginSchema } from "@/schema/user.schema";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "@/redux/store/store";
 import { useGetUserQuery, useLoginMutation } from "@/redux/services/authApi";
-import {
-  setLogin,
-} from "@/redux/slices/authSlice";
+import { setLogin } from "@/redux/slices/authSlice";
 import { toast } from "react-toastify";
+import { expenseApi } from "@/redux/services/expenseApi";
 
 const Signin = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -35,10 +34,12 @@ const Signin = () => {
     try {
       const response = await login(values).unwrap();
       dispatch(setLogin(response));
+      localStorage.setItem('userId', response._id);
       await refetch();
+      dispatch(expenseApi.util.invalidateTags(["Expense"]));
       navigate("/");
     } catch (error: any) {
-      toast.error(error.message || "Invalid Login")
+      toast.error(error.message || "Invalid Login");
     }
   };
 

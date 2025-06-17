@@ -16,40 +16,52 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
+connectDB();
+
+export const io = new Server(server, {
+  cors: {
+      origin: ["http://localhost:5173", "http://localhost:5174"],
+    credentials: true,
+  },
+});
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://localhost:5174"],
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("uploads", express.static("uploads"));
 app.use(cookieParser());
-
-connectDB();
-
-export const io = new Server(server);
 
 const connectedUsers = new Map();
 
 io.on("connection", (socket) => {
   console.log("a user connected");
   const userId = socket.handshake.query.userId;
+  console.log(userId, "connected");
+
   if (userId) {
     socket.join(userId);
     connectedUsers.set(userId, socket.id);
   }
 
   socket.on("mark_as_read", async (notificationId) => {
-    await Notification.findByIdAndUpdate(notificationId, { isRead: true });
+    await Notification.findByIdAndUpdate(
+      notificationId,
+      { isRead: true },
+      { new: true }
+    );
     io.to(userId).emit("notification_updated", {
-      id: notificationId,
+      _id: notificationId,
       isRead: true,
     });
-    socket.on("disconnect", () => {
-      connectedUsers.delete(userId);
-    });
+  });
+  socket.on("disconnect", () => {
+    connectedUsers.delete(userId);
   });
 });
 
@@ -61,6 +73,6 @@ app.use(errorMiddleware);
 
 const port = process.env.PORT || 5000;
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
