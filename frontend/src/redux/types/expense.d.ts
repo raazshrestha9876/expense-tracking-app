@@ -17,9 +17,12 @@ export interface ExpenseNotification {
 }
 
 export interface ExpenseState {
+  expenses: Expense[];
   selectedIndex: number;
   isExpenseEditSheetOpen: boolean;
   isExpenseDeleteDialogOpen: boolean;
   isExpenseDetailSheetOpen: boolean;
   isExpenseNotificationSheetOpen: boolean;
+  expenseNotificationCount: number;
+  expenseNotifications: ExpenseNotification[];
 }

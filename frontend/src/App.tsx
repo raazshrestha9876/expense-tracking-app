@@ -11,9 +11,15 @@ import { AddIncomeForm } from "./pages/IncomeForm";
 import Reports from "./pages/Reports";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UpdateProfile from "./pages/UpdateProfile";
-
+import { useSelector } from "react-redux";
+import type { RootState } from "./redux/store/store";
+import useSocketManager from "./hooks/useSocketManager";
 
 function App() {
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  useSocketManager(isAuthenticated);
+
   const router = createBrowserRouter([
     {
       path: "/",
@@ -36,7 +42,7 @@ function App() {
             },
             {
               path: "/profile",
-              element: <UpdateProfile />
+              element: <UpdateProfile />,
             },
             {
               path: "expense",
@@ -58,14 +64,17 @@ function App() {
               path: "report",
               element: <Reports />,
             },
-
           ],
         },
       ],
     },
   ]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+    </>
+  )
 }
 
 export default App;

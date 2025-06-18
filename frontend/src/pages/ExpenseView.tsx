@@ -4,7 +4,6 @@ import { ExpenseTable } from "@/components/ExpenseTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  useGetExpensesApiQuery,
   useGetExpenseStatsApiQuery,
 } from "@/redux/services/expenseApi";
 import {
@@ -40,11 +39,12 @@ const ExpenseView = () => {
     isExpenseNotificationSheetOpen,
   } = useSelector((state: RootState) => state.expenses);
 
-  const { data } = useGetExpensesApiQuery();
+  
   const { data: expenseStats } = useGetExpenseStatsApiQuery();
+  const { expenses } = useSelector((state: RootState) => state.expenses);
 
 
-  const expense = data?.expenses[selectedIndex];
+  const expense = expenses[selectedIndex];
 
   const handleExpenseEditSheetOpen = (index: number) => {
     dispatch(openExpenseEditSheet({ index: index, open: true }));
@@ -63,7 +63,7 @@ const ExpenseView = () => {
   };
 
   return (
-    <div className="p-10">
+    <div className=" px-10 pb-4 pt-4">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -81,7 +81,6 @@ const ExpenseView = () => {
         <div className="flex gap-2">
         <Button
           onClick={() => {
-            console.log("hello");
             navigate("/expense/add");
           }}
           className="cursor-pointer"
@@ -92,7 +91,7 @@ const ExpenseView = () => {
           onClick={handleExpenseNotificationSheetOpen}
           className="cursor-pointer"
         >
-          Notification
+          Reminder
         </Button>
         </div>
       </div>
@@ -108,7 +107,7 @@ const ExpenseView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${expenseStats?.totalExpense}
+              ${expenseStats?.totalExpense.toFixed(2)}
             </div>
             <p className="text-xs text-muted-foreground">All time</p>
           </CardContent>
@@ -121,7 +120,7 @@ const ExpenseView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${expenseStats?.totalMonthExpense}
+              ${expenseStats?.totalMonthExpense.toFixed(2)}
             </div>
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
@@ -136,7 +135,7 @@ const ExpenseView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${expenseStats?.AverageMonthExpense}
+              ${expenseStats?.AverageMonthExpense.toFixed(2)}
             </div>
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
@@ -149,7 +148,7 @@ const ExpenseView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${expenseStats?.totalTransaction}
+              ${expenseStats?.totalTransaction.toFixed(2)}
             </div>
             <p className="text-xs text-muted-foreground">All Time</p>
           </CardContent>
@@ -168,7 +167,7 @@ const ExpenseView = () => {
       {isExpenseDetailSheetOpen && <ExpenseDetailSheet expense={expense!} />}
       {isExpenseNotificationSheetOpen && <ExpenseNotificationSheet />}
     </div>
-  );
-};
+  )
+}
 
-export default ExpenseView;
+export default ExpenseView

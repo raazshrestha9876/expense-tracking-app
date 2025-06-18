@@ -5,17 +5,15 @@ import { CreditCard, DollarSign, Landmark, Wallet } from "lucide-react";
 
 const Home = () => {
   return (
-    <div className="space-y-6 p-10">
+    <div className="space-y-6  px-10 pb-4 pt-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-slate-500">
-            Last updated: Today, 2:45 PM
-          </span>
-        </div>
+        <span className="text-sm text-slate-500">
+          Last updated: Today, 2:45 PM
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         <StatsCard
           title="Total Balance"
           value="$12,580"

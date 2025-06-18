@@ -34,10 +34,9 @@ const Signin = () => {
     try {
       const response = await login(values).unwrap();
       dispatch(setLogin(response));
-      localStorage.setItem('userId', response._id);
       await refetch();
       dispatch(expenseApi.util.invalidateTags(["Expense"]));
-      navigate("/");
+      navigate("/", { replace: true });
     } catch (error: any) {
       toast.error(error.message || "Invalid Login");
     }

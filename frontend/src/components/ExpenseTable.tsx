@@ -1,13 +1,8 @@
-"use client";
-
 import * as React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import type {
@@ -16,7 +11,7 @@ import type {
   SortingState,
   VisibilityState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, ChevronDown, Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -41,12 +36,14 @@ import {
 } from "@/components/ui/table";
 import type { Expense } from "@/redux/types/expense";
 import { useGetExpensesApiQuery } from "@/redux/services/expenseApi";
-
+import { useDispatch } from "react-redux";
+import { type AppDispatch } from "@/redux/store/store";
+import { getExpenses } from "@/redux/slices/expenseSlice";
 
 const getColumns = (
   onExpenseEditSheetOpen: (index: number) => void,
   openExpenseDeleteDialog: (index: number) => void,
-  onExpenseDetailSheetOpen: (index: number) => void,
+  onExpenseDetailSheetOpen: (index: number) => void
 ): ColumnDef<Expense>[] => [
   {
     id: "select",
@@ -164,14 +161,19 @@ const getColumns = (
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => onExpenseEditSheetOpen(row.index)}>
-            Edit expense
+            <Edit className="mr-2 h-4 w-4" />
+            Edit
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onExpenseDetailSheetOpen(row.index)}>View details</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onExpenseDetailSheetOpen(row.index)}>
+            <Eye className="mr-2 h-4 w-4" />
+            View 
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => openExpenseDeleteDialog(row.index)}
             className="text-red-600"
           >
-            Delete expense
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -190,6 +192,10 @@ export function ExpenseTable({
   onExpenseDeleteDialogOpen,
   onExpenseDetailSheetOpen,
 }: ExpenseTableProps) {
+  const [searchTerm, setSearchTerm] = React.useState<string>("");
+  const paginationRef = React.useRef<HTMLDivElement>(null);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] =
+    React.useState<string>("");
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -197,19 +203,42 @@ export function ExpenseTable({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [page, setPage] = React.useState(1);
+  let limit = 10;
 
-  const { data, isLoading } = useGetExpensesApiQuery();
+  const dispatch = useDispatch<AppDispatch>();
 
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm.trim());
+      setPage(1);
+    }, 1000);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  const { data, isLoading } = useGetExpensesApiQuery({
+    page,
+    limit,
+    search: debouncedSearchTerm,
+  });
+
+  React.useEffect(() => {
+    if (data?.expenses) {
+      dispatch(getExpenses(data.expenses));
+    }
+  }, [data?.expenses, dispatch]);
 
   const table = useReactTable({
     data: data?.expenses ?? [],
-    columns: getColumns(onExpenseEditSheetOpen, onExpenseDeleteDialogOpen, onExpenseDetailSheetOpen),
+
+    columns: getColumns(
+      onExpenseEditSheetOpen,
+      onExpenseDeleteDialogOpen,
+      onExpenseDetailSheetOpen
+    ),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
@@ -218,19 +247,49 @@ export function ExpenseTable({
       columnVisibility,
       rowSelection,
     },
+    manualPagination: true,
+    pageCount: data?.totalPages ?? -1,
   });
+
+  const handlePrevious = () => {
+    const isLastPageWithFewerExpense =
+      data?.expenses && data?.expenses.length < limit;
+
+    setPage((old) => {
+      const newPage = Math.max(old - 1, 1);
+
+      if (isLastPageWithFewerExpense) {
+        setTimeout(() => {
+          paginationRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "end",
+          });
+        }, 100);
+      }
+
+      return newPage;
+    });
+  };
+
+  const handleNext = () => {
+    const totalPages = data?.totalPages ?? 1;
+    setPage((old) => {
+      const newPage = old + 1;
+      if (newPage > totalPages) {
+        return old;
+      } else {
+        return newPage;
+      }
+    });
+  };
 
   return (
     <div className="w-full">
       <div className="flex items-center py-4 gap-4">
         <Input
           placeholder="Filter by category..."
-          value={
-            (table.getColumn("category")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("category")?.setFilterValue(event.target.value)
-          }
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm"
         />
         <DropdownMenu>
@@ -277,7 +336,7 @@ export function ExpenseTable({
 
           <TableBody>
             {isLoading ? (
-              Array(5)
+              Array(table.getRowCount())
                 .fill(0)
                 .map((_, rowIndex) => (
                   <TableRow key={`skeleton-row-${rowIndex}`}>
@@ -319,28 +378,29 @@ export function ExpenseTable({
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          Page {data?.currentPage} of {data?.totalPages} | Total records:{" "}
+          {data?.totalCounts}
         </div>
         <div className="space-x-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={handlePrevious}
+            disabled={page === 1}
           >
             Previous
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={handleNext}
+            disabled={data ? page === data?.totalPages : true}
           >
             Next
           </Button>
         </div>
       </div>
+      <div className="h-0" ref={paginationRef} />
     </div>
   );
 }

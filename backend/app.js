@@ -10,6 +10,7 @@ import incomeRoute from "./routes/income.route.js";
 import http from "http";
 import { Server } from "socket.io";
 import Notification from "./models/notification.model.js";
+import verifySocketToken from "./middleware/VerifySocketToken.js";
 
 dotenv.config();
 
@@ -20,14 +21,14 @@ connectDB();
 
 export const io = new Server(server, {
   cors: {
-      origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: "http://localhost:5173",
     credentials: true,
   },
 });
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -37,33 +38,26 @@ app.use(express.urlencoded({ extended: true }));
 app.use("uploads", express.static("uploads"));
 app.use(cookieParser());
 
-const connectedUsers = new Map();
+const connectedUser = new Map();
+
+io.use(verifySocketToken);
 
 io.on("connection", (socket) => {
-  console.log("a user connected");
-  const userId = socket.handshake.query.userId;
-  console.log(userId, "connected");
+  const userId = socket.userId;
 
-  if (userId) {
-    socket.join(userId);
-    connectedUsers.set(userId, socket.id);
-  }
+  if (!userId) return;
 
-  socket.on("mark_as_read", async (notificationId) => {
-    await Notification.findByIdAndUpdate(
-      notificationId,
-      { isRead: true },
-      { new: true }
-    );
-    io.to(userId).emit("notification_updated", {
-      _id: notificationId,
-      isRead: true,
-    });
-  });
+  connectedUser.set(userId, socket.id);
+  socket.join(userId.toString());
+
+  console.log(`User ${userId} connected with socket ${socket.id}`);
+
   socket.on("disconnect", () => {
-    connectedUsers.delete(userId);
+    console.log(`User ${userId} disconnected`);
+    connectedUser.delete(userId);
   });
 });
+
 
 app.use("/api/user", userRoute);
 app.use("/api/expense", expenseRoute);

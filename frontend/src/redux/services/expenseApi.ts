@@ -24,10 +24,10 @@ export const expenseApi = createApi({
         totalCounts: number;
         currentPage: number;
       },
-      void
+      { page: number; limit: number; search: string }
     >({
-      query: () => ({
-        url: "/expense/get",
+      query: ({ page, limit, search }) => ({
+        url: `/expense/get?search=${search}&page=${page}&limit=${limit}`,
         method: "GET",
       }),
       transformResponse: (response: {

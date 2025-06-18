@@ -1,5 +1,3 @@
-"use client";
-
 import { Menu, Bell, Search, LogOutIcon, User2Icon } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -18,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import { toast } from "react-toastify";
 import { expenseApi } from "@/redux/services/expenseApi";
+import { clearExpenseNotification } from "@/redux/slices/expenseSlice";
 
 const Navbar = () => {
   const { toggle }: any = useSidebar();
@@ -27,12 +26,16 @@ const Navbar = () => {
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.auth
   );
+  const { expenseNotificationCount } = useSelector(
+    (state: RootState) => state.expenses
+  );
 
   const handleLogout = async () => {
     try {
       await logout();
       dispatch(setLogout());
       dispatch(expenseApi.util.invalidateTags(["Expense"]));
+      dispatch(clearExpenseNotification());
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -62,14 +65,21 @@ const Navbar = () => {
       </div>
 
       <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-slate-600 hover:bg-slate-100"
-        >
-          <Bell className="h-5 w-5" />
-          <span className="sr-only">Notifications</span>
-        </Button>
+        {isAuthenticated && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-slate-600 hover:bg-slate-100 relative"
+          >
+            {expenseNotificationCount > 0 && (
+              <span className="absolute bg-red-700 text-white rounded-full object-contain px-[5px] py-[1px] text-[12px] top-1 right-5">
+                {expenseNotificationCount}
+              </span>
+            )}
+            <Bell className="h-8 w-8" size={28} />
+            <span className="sr-only">Notifications</span>
+          </Button>
+        )}
 
         <Popover>
           <PopoverTrigger>

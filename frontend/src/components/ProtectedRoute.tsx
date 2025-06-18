@@ -1,13 +1,21 @@
 import type { RootState } from "@/redux/store/store";
 import { useSelector } from "react-redux";
 import { Navigate, Outlet } from "react-router-dom";
+import NotificationExpenseListener from "./NotificationExpenseListener";
+
 
 const ProtectedRoute = () => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-  console.log(isAuthenticated);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/signin" />;
+  }
 
   return (
-    <>{isAuthenticated ? <Outlet /> : <Navigate to="/signin" replace />}</>
+    <>
+      <NotificationExpenseListener />
+      <Outlet />
+    </>
   );
 };
 

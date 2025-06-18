@@ -17,16 +17,16 @@ export const addExpense = async (req, res, next) => {
     });
 
     await expense.save();
-
     const notification = new Notification({
       user: req.userId,
-      message: `You added an expense of Rs. ${amount}`,
+      message: `You have added a new expense of $${expense.amount} for ${expense.description}`,
     });
     await notification.save();
 
-    io.to(req.userId.toString()).emit("new_notification", {
+    io.to(req.userId.toString()).emit("add_expense_notification", {
       _id: notification._id,
       message: notification.message,
+      createdAt: notification.createdAt,
       isRead: notification.isRead,
     });
 
@@ -44,9 +44,19 @@ export const getAllExpense = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
+    const searchTerm = req.query.search?.trim() || "";
+
     const skip = (page - 1) * limit;
 
-    const expenses = await Expense.find({ user: req.userId })
+    const expenses = await Expense.find({
+      user: req.userId,
+      ...(searchTerm && {
+        $or: [
+          { description: { $regex: searchTerm, $options: "i" } },
+          { category: { $regex: searchTerm, $options: "i" } },
+        ],
+      }),
+    })
       .populate({
         path: "user",
         select: "name email",
@@ -88,24 +98,19 @@ export const updateExpense = async (req, res, next) => {
         new: true,
       }
     );
-
     if (expense.amount !== amount) {
       const notification = new Notification({
         user: req.userId,
-        message: `You have updated an expense of Rs. ${amount}`,
+        message: `You have updated an expense of Rs. ${amount} for ${description}`,
       });
-
       await notification.save();
 
-      io.to(
-        req.userId.toString().emit("new_notification", {
-          _id: notification._id,
-          message: notification.message,
-          isRead: notification.isRead,
-        })
-      );
+      io.to(req.userId.toString()).emit("updated_expense_notification", {
+        _id: notification._id,
+        message: notification.message,
+        isRead: notification.isRead,
+      });
     }
-
     res.status(200).json({
       success: true,
       message: "Expense updated successfully",
