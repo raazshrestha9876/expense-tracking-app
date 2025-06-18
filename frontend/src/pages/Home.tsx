@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { StatsCard } from "@/components/StatsCard";
-import { ChartSavingAndExpense } from "@/components/Chart";
+import { StatsCard } from "@/components/Dashboard/StatsCard";
+import { ChartSavingAndExpense } from "@/components/Dashboard/Chart";
 import { CreditCard, DollarSign, Landmark, Wallet } from "lucide-react";
 
 const Home = () => {

@@ -1,6 +1,6 @@
-import { ExpenseDeleteForDialog } from "@/components/ExpenseDialogForDelete";
-import { ExpenseSheetForUpdate } from "@/components/ExpenseSheetForUpdate";
-import { ExpenseTable } from "@/components/ExpenseTable";
+import { ExpenseDeleteForDialog } from "@/components/Expense/ExpenseDialogForDelete";
+import { ExpenseSheetForUpdate } from "@/components/Expense/ExpenseSheetForUpdate";
+import { ExpenseTable } from "@/components/Expense/ExpenseTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -24,8 +24,8 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import ExpenseDetailSheet from "@/components/ExpenseDetailSheet";
-import ExpenseNotificationSheet from "@/components/ExpenseNotificationSheet";
+import ExpenseDetailSheet from "@/components/Expense/ExpenseDetailSheet";
+import ExpenseNotificationSheet from "@/components/Expense/ExpenseNotificationSheet";
 
 const ExpenseView = () => {
   const navigate = useNavigate();

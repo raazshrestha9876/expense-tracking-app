@@ -1,5 +1,5 @@
-import ExpenseChart from "@/components/ExpenseChart";
-import IncomeChart from "@/components/IncomeChart";
+import ExpenseChart from "@/components/Expense/ExpenseChart";
+import IncomeChart from "@/components/Income/IncomeChart";
 
 const Reports = () => {
   return (

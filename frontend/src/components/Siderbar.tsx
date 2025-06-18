@@ -5,9 +5,10 @@ import {
   LayoutDashboard,
   PiggyBank,
 } from "lucide-react";
-import { useSidebar } from "@/context/sidebarContext";
+
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { useSidebar } from "@/hooks/useSidebar";
 
 const Sidebar = () => {
   const { isOpen, toggle }: any = useSidebar();
@@ -64,7 +65,7 @@ const Sidebar = () => {
                 className="flex items-center gap-3 px-3 py-2.5 rounded-md text-slate-600 font-medium hover:bg-slate-100"
               >
                 <PiggyBank className="h-5 w-5 text-slate-500" />
-                <span>Savings</span>
+                <span>Income</span>
               </Link>
             </li>
             <li>

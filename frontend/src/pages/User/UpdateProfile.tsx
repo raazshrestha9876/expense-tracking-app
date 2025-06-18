@@ -50,7 +50,7 @@ import {
 import { fetchUser } from "@/redux/slices/authSlice";
 
 import { useEffect, useRef, useState } from "react";
-import PasswordChangeForm from "@/components/PasswordChangeForm";
+import PasswordChangeForm from "@/components/Dashboard/PasswordChangeForm";
 
 const UpdateProfile = () => {
   const dispatch = useDispatch<AppDispatch>();

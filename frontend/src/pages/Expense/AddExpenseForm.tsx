@@ -117,8 +117,8 @@ export function AddExpenseForm() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="flex flex-col items-center justify-center h-[85%] ">
-        <Card className="max-w-5xl">
+      <div className="flex flex-col items-center justify-center h-full ">
+        <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Plus className="h-5 w-5" />

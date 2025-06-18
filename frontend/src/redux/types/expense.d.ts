@@ -8,14 +8,12 @@ export interface Expense {
   createdAt: Date;
   updatedAt: Date;
 }
-
 export interface ExpenseNotification {
   _id: string;
   message: string;
   isRead: boolean;
   createdAt: Date;
 }
-
 export interface ExpenseState {
   expenses: Expense[];
   selectedIndex: number;

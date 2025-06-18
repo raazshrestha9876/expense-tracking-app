@@ -2,7 +2,6 @@ import { Menu, Bell, Search, LogOutIcon, User2Icon } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useSidebar } from "@/context/sidebarContext";
 import {
   Popover,
   PopoverContent,
@@ -17,9 +16,10 @@ import { AvatarFallback } from "@radix-ui/react-avatar";
 import { toast } from "react-toastify";
 import { expenseApi } from "@/redux/services/expenseApi";
 import { clearExpenseNotification } from "@/redux/slices/expenseSlice";
+import { useSidebar } from "@/hooks/useSidebar";
 
 const Navbar = () => {
-  const { toggle }: any = useSidebar();
+  const { toggle }: any  = useSidebar();
   const dispatch = useDispatch<AppDispatch>();
   const [logout, { isLoading }] = useLogoutMutation();
   const navigate = useNavigate();

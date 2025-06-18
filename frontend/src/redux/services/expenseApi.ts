@@ -31,7 +31,6 @@ export const expenseApi = createApi({
         method: "GET",
       }),
       transformResponse: (response: {
-        success: boolean;
         data: Expense[];
         totalPages: number;
         totalCounts: number;
@@ -51,7 +50,7 @@ export const expenseApi = createApi({
         method: "POST",
         body: expense,
       }),
-      transformResponse: (response: { success: boolean; data: Expense }) =>
+      transformResponse: (response: { data: Expense }) =>
         response.data,
       invalidatesTags: ["Expense"],
     }),
@@ -65,7 +64,7 @@ export const expenseApi = createApi({
         method: "PUT",
         body: expenseData,
       }),
-      transformResponse: (response: { success: boolean; data: Expense }) =>
+      transformResponse: (response: { data: Expense }) =>
         response.data,
       invalidatesTags: ["Expense"],
     }),
@@ -84,7 +83,6 @@ export const expenseApi = createApi({
         method: "GET",
       }),
       transformResponse: (response: {
-        success: boolean;
         data: ExpenseNotification[];
       }) => response.data,
       providesTags: ["Expense"],
@@ -104,7 +102,6 @@ export const expenseApi = createApi({
         method: "GET",
       }),
       transformResponse: (response: {
-        success: boolean;
         data: {
           totalExpense: number;
           totalTransaction: number;

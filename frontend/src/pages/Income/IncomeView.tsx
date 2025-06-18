@@ -1,5 +1,5 @@
 
-import { IncomeTable } from "@/components/IncomeTable";
+import { IncomeTable } from "@/components/Income/IncomeTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, CreditCard, DollarSign, TrendingUp } from "lucide-react";

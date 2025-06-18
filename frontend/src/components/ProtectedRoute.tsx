@@ -1,7 +1,7 @@
 import type { RootState } from "@/redux/store/store";
 import { useSelector } from "react-redux";
 import { Navigate, Outlet } from "react-router-dom";
-import NotificationExpenseListener from "./NotificationExpenseListener";
+import NotificationExpenseListener from "./Expense/NotificationExpenseListener";
 
 
 const ProtectedRoute = () => {
