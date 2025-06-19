@@ -41,6 +41,8 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { useAddIncomeApiMutation } from "@/redux/services/incomeApi";
+import { addIncomeSchema } from "@/schema/income.schema";
 
 const categories = [
   "Food & Dining",
@@ -61,8 +63,7 @@ const categories = [
 export function AddIncomeForm() {
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-  const [addIncomeApi, { isLoading: isSubmitting }] =
-    useAddIncomeApiMutation();
+  const [addIncomeApi, { isLoading: isSubmitting }] = useAddIncomeApiMutation();
 
   const form = useForm<z.infer<typeof addIncomeSchema>>({
     resolver: zodResolver(addIncomeSchema),
@@ -107,11 +108,11 @@ export function AddIncomeForm() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/Income">Income</BreadcrumbLink>
+            <BreadcrumbLink href="/income">Income</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/Income/add">Add</BreadcrumbLink>
+            <BreadcrumbLink href="/income/add">Add</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
         </BreadcrumbList>
@@ -136,7 +137,6 @@ export function AddIncomeForm() {
                 className="space-y-6"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
-                  {/* Amount Field */}
                   <FormField
                     control={form.control}
                     name="amount"
@@ -188,7 +188,6 @@ export function AddIncomeForm() {
                     )}
                   />
 
-                  {/* Category Field */}
                   <FormField
                     control={form.control}
                     name="category"
@@ -217,39 +216,23 @@ export function AddIncomeForm() {
                     )}
                   />
 
-                  {/* Payment Method Field */}
                   <FormField
                     control={form.control}
-                    name="paymentMethod"
+                    name="source"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Payment Method</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl className="w-full">
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select payment method" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Cash">Cash</SelectItem>
-                            <SelectItem value="Credit Card">
-                              Credit Card
-                            </SelectItem>
-                            <SelectItem value="Debit Card">
-                              Debit Card
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <FormLabel>Source</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input placeholder="Source" type="text" {...field} />
+                          </div>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
 
-                {/* Tags Field */}
                 <div className="space-y-3">
                   <FormLabel>Tags</FormLabel>
                   <div className="flex gap-2">

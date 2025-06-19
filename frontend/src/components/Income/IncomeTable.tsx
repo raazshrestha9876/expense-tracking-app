@@ -1,21 +1,29 @@
+"use client";
 
-"use client"
-
-import * as React from "react"
+import * as React from "react";
 import {
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table"
-import type { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+} from "@tanstack/react-table";
+import type {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+} from "@tanstack/react-table";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Trash2,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -24,86 +32,34 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import type { Income } from "@/redux/types/income";
+import { useGetIncomeApiQuery } from "@/redux/services/incomeApi";
+import { Skeleton } from "../ui/skeleton";
+import { useDispatch } from "react-redux";
+import { type AppDispatch } from "@/redux/store/store";
+import { getIncomes } from "@/redux/slices/incomeSlice";
 
-const data: Income[] = [
-  {
-    id: "exp_001",
-    user: "user_123",
-    amount: 45.99,
-    date: new Date("2024-01-15"),
-    category: "Food & Dining",
-    paymentMethod: "Credit Card",
-    tags: ["lunch", "restaurant"],
-    createdAt: new Date("2024-01-15"),
-    updatedAt: new Date("2024-01-15"),
-  },
-  {
-    id: "exp_002",
-    user: "user_123",
-    amount: 1200.0,
-    date: new Date("2024-01-01"),
-    category: "Housing",
-    paymentMethod: "Debit Card",
-    tags: ["rent", "monthly"],
-    createdAt: new Date("2024-01-01"),
-    updatedAt: new Date("2024-01-01"),
-  },
-  {
-    id: "exp_003",
-    user: "user_123",
-    amount: 89.5,
-    date: new Date("2024-01-10"),
-    category: "Transportation",
-    paymentMethod: "Cash",
-    tags: ["gas", "car"],
-    createdAt: new Date("2024-01-10"),
-    updatedAt: new Date("2024-01-10"),
-  },
-  {
-    id: "exp_004",
-    user: "user_123",
-    amount: 25.0,
-    date: new Date("2024-01-12"),
-    category: "Entertainment",
-    paymentMethod: "Credit Card",
-    tags: ["movie", "weekend"],
-    createdAt: new Date("2024-01-12"),
-    updatedAt: new Date("2024-01-12"),
-  },
-  {
-    id: "exp_005",
-    user: "user_123",
-    amount: 156.78,
-    date: new Date("2024-01-08"),
-    category: "Shopping",
-    paymentMethod: "Debit Card",
-    tags: ["groceries", "weekly"],
-    createdAt: new Date("2024-01-08"),
-    updatedAt: new Date("2024-01-08"),
-  },
-]
-
-export type Income = {
-  id: string
-  user: string
-  amount: number
-  date: Date
-  category: string
-  paymentMethod: "Cash" | "Credit Card" | "Debit Card"
-  tags: string[]
-  createdAt: Date
-  updatedAt: Date
-}
-
-export const columns: ColumnDef<Income>[] = [
+const getColumns = (
+  onIncomeDeleteDialogOpen: (index: number) => void
+): ColumnDef<Income>[] => [
   {
     id: "select",
     header: ({ table }) => (
       <Checkbox
-        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
@@ -119,31 +75,56 @@ export const columns: ColumnDef<Income>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "date",
+    accessorKey: "createdAt",
     header: ({ column }) => {
       return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
           Date
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
-      const date = row.getValue("date") as Date
-      return <p>{date.toLocaleDateString()}</p>
+      const date = new Date(row.getValue("createdAt") as string);
+      return <p>{date.toLocaleDateString()}</p>;
     },
+  },
+  {
+    accessorKey: "description",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Description
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <p className="font-medium">{row.getValue("description")}</p>
+    ),
   },
   {
     accessorKey: "category",
     header: ({ column }) => {
       return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
           Category
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
-    cell: ({ row }) => <p className="font-medium">{row.getValue("category")}</p>,
+    cell: ({ row }) => (
+      <p className="font-medium ml-4">{row.getValue("category")}</p>
+    ),
   },
   {
     accessorKey: "amount",
@@ -156,35 +137,35 @@ export const columns: ColumnDef<Income>[] = [
           Amount
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
-      const amount = Number.parseFloat(row.getValue("amount"))
+      const amount = Number.parseFloat(row.getValue("amount"));
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
-      }).format(amount)
+      }).format(amount);
 
-      return <p className="font-medium ml-4">{formatted}</p>
+      return <p className="font-medium ml-4">{formatted}</p>;
     },
   },
   {
-    accessorKey: "paymentMethod",
-    header: "Payment Method",
+    accessorKey: "source",
+    header: "source",
     cell: ({ row }) => {
-      const method = row.getValue("paymentMethod") as string
+      const method = row.getValue("source") as string;
       return (
         <Badge variant="outline" className="capitalize">
           {method}
         </Badge>
-      )
+      );
     },
   },
   {
     id: "actions",
     header: "Actions",
     enableHiding: false,
-    cell: () => {
+    cell: ({ row }) => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -195,33 +176,107 @@ export const columns: ColumnDef<Income>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-           
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Edit Income</DropdownMenuItem>
-            <DropdownMenuItem>View details</DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">Delete Income</DropdownMenuItem>
+            <DropdownMenuItem>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Eye className="mr-2 h-4 w-4" />
+              View
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onIncomeDeleteDialogOpen(row.index)}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-]
+];
 
-export function IncomeTable() {
-  const [sorting, setSorting] = React.useState<SortingState>([{ id: "date", desc: true }])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
+interface IncomeTableProps {
+  onDeleteIncomeDialogOpen: (index: number) => void;
+}
+
+export function IncomeTable({ onDeleteIncomeDialogOpen }: IncomeTableProps) {
+  const paginationRef = React.useRef<HTMLDivElement>(null);
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: "date", desc: true },
+  ]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [searchTerm, setSearchTerm] = React.useState<string>("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] =
+    React.useState<string>("");
+  const dispatch = useDispatch<AppDispatch>();
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm.trim());
+      setPage(1);
+    }, 1000);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  const [page, setPage] = React.useState(1);
+  const limit = 10;
+
+  const { data, isLoading } = useGetIncomeApiQuery({
+    limit,
+    page,
+    search: debouncedSearchTerm,
+  });
+
+  React.useEffect(() => {
+    if (data?.income) {
+      dispatch(getIncomes(data.income));
+    }
+  }, [data?.income]);
+
+  const handlePrevious = () => {
+    if (page <= 1) {
+      return;
+    }
+    setPage(page - 1);
+
+    const incomeCountPerPage = data?.income?.length || 0;
+    if (incomeCountPerPage < limit) {
+      setTimeout(() => {
+        if (paginationRef.current) {
+          paginationRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "end",
+          });
+        }
+      }, 100);
+    }
+  };
+
+  const handleNext = () => {
+    const totalPages = data?.totalPages ?? 1;
+    setPage((prev: number) => {
+      if (prev >= totalPages) {
+        return prev;
+      } else {
+        return prev + 1;
+      }
+    });
+  };
 
   const table = useReactTable({
-    data,
-    columns,
+    data: data?.income ?? [],
+    columns: getColumns(onDeleteIncomeDialogOpen),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
@@ -230,15 +285,17 @@ export function IncomeTable() {
       columnVisibility,
       rowSelection,
     },
-  })
+    manualPagination: true,
+    pageCount: data?.totalPages ?? -1,
+  });
 
   return (
     <div className="w-full">
       <div className="flex items-center py-4 gap-4">
         <Input
           placeholder="Filter by category..."
-          value={(table.getColumn("category")?.getFilterValue() as string) ?? ""}
-          onChange={(event) => table.getColumn("category")?.setFilterValue(event.target.value)}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm"
         />
         <DropdownMenu>
@@ -257,11 +314,13 @@ export function IncomeTable() {
                     key={column.id}
                     className="capitalize"
                     checked={column.getIsVisible()}
-                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
                   >
                     {column.id}
                   </DropdownMenuCheckboxItem>
-                )
+                );
               })}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -274,25 +333,53 @@ export function IncomeTable() {
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              Array(table.getRowCount())
+                .fill(0)
+                .map((_, rowIndex) => (
+                  <TableRow key={`skeleton-row-${rowIndex}`}>
+                    {table.getAllColumns().map((column) => (
+                      <TableCell key={`skeleton-cell-${rowIndex}-${column.id}`}>
+                        <Skeleton className="h-4 w-full max-w-[150px]" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+            ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={table.getAllColumns().length}
+                  className="h-24 text-center"
+                >
                   No Incomes found.
                 </TableCell>
               </TableRow>
@@ -302,23 +389,29 @@ export function IncomeTable() {
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
-          selected.
+          Page {data?.currentPage} of {data?.totalPages} | Total records:{" "}
+          {data?.totalCounts}
         </div>
         <div className="space-x-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={handlePrevious}
+            disabled={page === 1}
           >
             Previous
           </Button>
-          <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleNext}
+            disabled={data ? page === data?.totalPages: true}
+          >
             Next
           </Button>
         </div>
       </div>
+      <div className="h-0" ref={paginationRef} />
     </div>
-  )
+  );
 }

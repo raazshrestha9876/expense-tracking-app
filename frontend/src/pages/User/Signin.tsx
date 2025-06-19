@@ -15,16 +15,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { loginSchema } from "@/schema/user.schema";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "@/redux/store/store";
-import { useGetUserQuery, useLoginMutation } from "@/redux/services/authApi";
+import { useLoginMutation } from "@/redux/services/authApi";
 import { setLogin } from "@/redux/slices/authSlice";
 import { toast } from "react-toastify";
 import { expenseApi } from "@/redux/services/expenseApi";
+import { incomeApi } from "@/redux/services/incomeApi";
 
 const Signin = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [login, { isLoading }] = useLoginMutation();
   const navigate = useNavigate();
-  const { refetch } = useGetUserQuery();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -34,8 +34,8 @@ const Signin = () => {
     try {
       const response = await login(values).unwrap();
       dispatch(setLogin(response));
-      await refetch();
       dispatch(expenseApi.util.invalidateTags(["Expense"]));
+      dispatch(incomeApi.util.invalidateTags(['income']));
       navigate("/", { replace: true });
     } catch (error: any) {
       toast.error(error.message || "Invalid Login");

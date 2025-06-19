@@ -17,7 +17,7 @@ export const incomeApi = createApi({
   }),
   tagTypes: ["income"],
   endpoints: (builder) => ({
-    getIncome: builder.query<
+    getIncomeApi: builder.query<
       {
         income: Income[];
         totalCounts: number;
@@ -44,7 +44,7 @@ export const incomeApi = createApi({
       providesTags: ["income"],
     }),
 
-    addIncome: builder.mutation<Income, AddIncomeRequest>({
+    addIncomeApi: builder.mutation<Income, AddIncomeRequest>({
       query: (income) => ({
         url: "/add",
         method: "POST",
@@ -54,7 +54,7 @@ export const incomeApi = createApi({
       invalidatesTags: ["income"],
     }),
 
-    updateIncome: builder.mutation<
+    updateIncomeApi: builder.mutation<
       Income,
       { incomeId: string; incomeData: UpdateExpenseRequest }
     >({
@@ -67,7 +67,7 @@ export const incomeApi = createApi({
       invalidatesTags: ["income"],
     }),
 
-    deleteIncome: builder.mutation<void, string>({
+    deleteIncomeApi: builder.mutation<void, string>({
       query: (incomeId) => ({
         url: `/delete/${incomeId}`,
         method: "DELETE",
@@ -75,12 +75,12 @@ export const incomeApi = createApi({
       invalidatesTags: ["income"],
     }),
 
-    getIncomeCard: builder.query<
+    getIncomeCardStatsApi: builder.query<
       {
         totalIncome: number;
         totalTransaction: number;
         totalMonthIncome: number;
-        AverageMonthIncome: number;
+        averageMonthIncome: number;
       },
       void
     >({
@@ -93,7 +93,7 @@ export const incomeApi = createApi({
           totalIncome: number;
           totalTransaction: number;
           totalMonthIncome: number;
-          AverageMonthIncome: number;
+          averageMonthIncome: number;
         };
       }) => response.data,
       providesTags: ["income"],
@@ -102,9 +102,9 @@ export const incomeApi = createApi({
 });
 
 export const {
-  useGetIncomeQuery,
-  useGetIncomeCardQuery,
-  useAddIncomeMutation,
-  useUpdateIncomeMutation,
-  useDeleteIncomeMutation,
+  useGetIncomeApiQuery,
+  useGetIncomeCardStatsApiQuery,
+  useAddIncomeApiMutation,
+  useUpdateIncomeApiMutation,
+  useDeleteIncomeApiMutation
 } = incomeApi;

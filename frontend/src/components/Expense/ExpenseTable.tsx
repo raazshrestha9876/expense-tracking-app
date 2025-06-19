@@ -95,7 +95,7 @@ const getColumns = (
       </Button>
     ),
     cell: ({ row }) => (
-      <p className="font-medium">{row.getValue("description")}</p>
+      <p className="font-medium ml-3">{row.getValue("description")}</p>
     ),
   },
   {
@@ -192,6 +192,7 @@ export function ExpenseTable({
   onExpenseDeleteDialogOpen,
   onExpenseDetailSheetOpen,
 }: ExpenseTableProps) {
+
   const [searchTerm, setSearchTerm] = React.useState<string>("");
   const paginationRef = React.useRef<HTMLDivElement>(null);
   const [debouncedSearchTerm, setDebouncedSearchTerm] =
@@ -230,7 +231,6 @@ export function ExpenseTable({
 
   const table = useReactTable({
     data: data?.expenses ?? [],
-
     columns: getColumns(
       onExpenseEditSheetOpen,
       onExpenseDeleteDialogOpen,
@@ -275,7 +275,7 @@ export function ExpenseTable({
     const totalPages = data?.totalPages ?? 1;
     setPage((old) => {
       const newPage = old + 1;
-      if (newPage > totalPages) {
+      if (newPage >= totalPages) {
         return old;
       } else {
         return newPage;

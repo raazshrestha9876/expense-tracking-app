@@ -28,9 +28,18 @@ export const getAllIncome = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
-    const skip = ((page - 1) * limit);
+    const searchTerm = req.query.search || "";
+    const skip = (page - 1) * limit;
 
-    const income = await Income.find({ user: req.userId })
+    const income = await Income.find({
+      user: req.userId,
+      ...(searchTerm && {
+        $or: [
+          { description: { $regex: searchTerm, $options: "i" } },
+          { category: { $regex: searchTerm, $options: "i" } },
+        ],
+      }),
+    })
       .populate({
         path: "user",
         select: "name email",
@@ -87,6 +96,97 @@ export const deleteIncome = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Income deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getIncomeCardStats = async (req, res, next) => {
+  try {
+    const results = await Income.aggregate([
+      {
+        $match: { user: new mongoose.Types.ObjectId(req.userId) },
+      },
+      {
+        $facet: {
+          totalAmount: [
+            {
+              $group: {
+                _id: null,
+                totalAmount: { $sum: "$amount" },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                totalAmount: 1,
+              },
+            },
+          ],
+          totalTransaction: [
+            {
+              $group: {
+                _id: null,
+                totalTransaction: { $sum: 1 },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                totalTransaction: 1,
+              },
+            },
+          ],
+          totalAndAverageMonthIncome: [
+            {
+              $group: {
+                _id: {
+                  $dateToString: {
+                    format: "%Y-%m",
+                    date: "$createdAt",
+                    timezone: "Asia/Kathmandu",
+                  },
+                },
+                totalMonthIncome: { $sum: "$amount" },
+                averageMonthIncome: { $avg: "$amount" },
+              },
+            },
+            {
+              $sort: { _id: 1 },
+            },
+            {
+              $project: {
+                _id: 0,
+                date: "$_id",
+                totalMonthIncome: 1,
+                averageMonthIncome: 1,
+              },
+            },
+          ],
+        },
+      },
+    ]);
+
+    const totalIncome = results[0]?.totalAmount?.[0]?.totalAmount || 0;
+
+    const totalTransaction =
+      results[0]?.totalTransaction?.[0]?.totalTransaction || 0;
+
+    const totalMonthIncome =
+      results[0]?.totalAndAverageMonthIncome?.[0]?.totalMonthIncome || 0;
+
+    const averageMonthIncome =
+      results[0]?.totalAndAverageMonthIncome?.[0]?.averageMonthIncome || 0;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalIncome,
+        totalTransaction,
+        totalMonthIncome,
+        averageMonthIncome,
+      },
     });
   } catch (error) {
     next(error);

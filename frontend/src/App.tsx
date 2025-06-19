@@ -7,7 +7,7 @@ import Layout from "./pages/Layout";
 import ExpenseView from "./pages/Expense/ExpenseView";
 import { AddExpenseForm } from "./pages/Expense/AddExpenseForm";
 import IncomeView from "./pages/Income/IncomeView";
-import { AddIncomeForm } from "./pages/Income/IncomeForm";
+import { AddIncomeForm } from "./pages/Income/AddIncomeForm";
 import Reports from "./pages/Reports";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UpdateProfile from "./pages/User/UpdateProfile";

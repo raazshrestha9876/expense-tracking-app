@@ -206,10 +206,10 @@ export const getExpenseCardStats = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: {
-        totalExpense: result1[0].totalExpense,
-        totalTransaction: result1[0].totalTransaction,
-        totalMonthExpense: result2[0].totalMonthExpense,
-        AverageMonthExpense: result2[0].AverageMonthExpense,
+        totalExpense: result1[0].totalExpense || 0,
+        totalTransaction: result1[0].totalTransaction || 0,
+        totalMonthExpense: result2[0].totalMonthExpense || 0,
+        AverageMonthExpense: result2[0].AverageMonthExpense || 0,
       },
     });
   } catch (error) {

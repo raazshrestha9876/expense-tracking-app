@@ -3,9 +3,7 @@ import { ExpenseSheetForUpdate } from "@/components/Expense/ExpenseSheetForUpdat
 import { ExpenseTable } from "@/components/Expense/ExpenseTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  useGetExpenseStatsApiQuery,
-} from "@/redux/services/expenseApi";
+import { useGetExpenseStatsApiQuery } from "@/redux/services/expenseApi";
 import {
   openExpenseDeleteDialog,
   openExpenseDetailSheet,
@@ -32,6 +30,7 @@ const ExpenseView = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const {
+    expenses,
     selectedIndex,
     isExpenseEditSheetOpen,
     isExpenseDeleteDialogOpen,
@@ -39,10 +38,7 @@ const ExpenseView = () => {
     isExpenseNotificationSheetOpen,
   } = useSelector((state: RootState) => state.expenses);
 
-  
   const { data: expenseStats } = useGetExpenseStatsApiQuery();
-  const { expenses } = useSelector((state: RootState) => state.expenses);
-
 
   const expense = expenses[selectedIndex];
 
@@ -63,7 +59,7 @@ const ExpenseView = () => {
   };
 
   return (
-    <div className=" px-10 pb-4 pt-4">
+    <div className="px-10 pb-4 pt-4">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -79,20 +75,20 @@ const ExpenseView = () => {
       <div className="flex justify-between ">
         <h1 className="text-2xl font-semibold mt-2">Expense Management</h1>
         <div className="flex gap-2">
-        <Button
-          onClick={() => {
-            navigate("/expense/add");
-          }}
-          className="cursor-pointer"
-        >
-          Add Expense
-        </Button>
-         <Button
-          onClick={handleExpenseNotificationSheetOpen}
-          className="cursor-pointer"
-        >
-          Reminder
-        </Button>
+          <Button
+            onClick={() => {
+              navigate("/expense/add");
+            }}
+            className="cursor-pointer"
+          >
+            Add Expense
+          </Button>
+          <Button
+            onClick={handleExpenseNotificationSheetOpen}
+            className="cursor-pointer"
+          >
+            Reminder
+          </Button>
         </div>
       </div>
 
@@ -107,7 +103,7 @@ const ExpenseView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${expenseStats?.totalExpense.toFixed(2)}
+              ${expenseStats?.totalExpense.toFixed(2) || 0}
             </div>
             <p className="text-xs text-muted-foreground">All time</p>
           </CardContent>
@@ -120,7 +116,7 @@ const ExpenseView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${expenseStats?.totalMonthExpense.toFixed(2)}
+              ${expenseStats?.totalMonthExpense.toFixed(2) || 0}
             </div>
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
@@ -135,7 +131,7 @@ const ExpenseView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${expenseStats?.AverageMonthExpense.toFixed(2)}
+              ${expenseStats?.AverageMonthExpense.toFixed(2) || 0}
             </div>
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
@@ -148,7 +144,7 @@ const ExpenseView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${expenseStats?.totalTransaction.toFixed(2)}
+              ${expenseStats?.totalTransaction.toFixed(2) || 0}
             </div>
             <p className="text-xs text-muted-foreground">All Time</p>
           </CardContent>
@@ -167,7 +163,7 @@ const ExpenseView = () => {
       {isExpenseDetailSheetOpen && <ExpenseDetailSheet expense={expense!} />}
       {isExpenseNotificationSheetOpen && <ExpenseNotificationSheet />}
     </div>
-  )
-}
+  );
+};
 
-export default ExpenseView
+export default ExpenseView;
