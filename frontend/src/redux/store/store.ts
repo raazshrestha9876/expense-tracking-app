@@ -7,6 +7,7 @@ import incomeReducer from "../slices/incomeSlice";
 import { authApi } from "../services/authApi";
 import { expenseApi } from "../services/expenseApi";
 import { incomeApi } from "../services/incomeApi";
+import { analyticsApi } from "../services/analyticsApi";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   [authApi.reducerPath]: authApi.reducer,
   [expenseApi.reducerPath]: expenseApi.reducer,
   [incomeApi.reducerPath]: incomeApi.reducer,
+  [analyticsApi.reducerPath]: analyticsApi.reducer,
 });
 
 const persistConfig = {
@@ -31,7 +33,12 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
-    }).concat(authApi.middleware, expenseApi.middleware, incomeApi.middleware),
+    }).concat(
+      authApi.middleware,
+      expenseApi.middleware,
+      incomeApi.middleware,
+      analyticsApi.middleware
+    ),
 });
 
 export const persistor = persistStore(store);

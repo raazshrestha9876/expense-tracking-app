@@ -1,18 +1,26 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { ArrowDownIcon, ArrowUpIcon } from "lucide-react"
-import type { ReactNode } from "react"
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
+import type { ReactNode } from "react";
 
 interface StatsCardProps {
-  title: string
-  value: string
-  description: string
-  trend: "up" | "down"
-  percentage: string
-  icon: ReactNode
-  iconColor: string
+  title: string;
+  value: string;
+  description: string;
+  trend: string;
+  percentage: string;
+  icon: ReactNode;
+  iconColor: string;
 }
 
-export function StatsCard({ title, value, description, trend, percentage, icon, iconColor }: StatsCardProps) {
+export function StatsCard({
+  title,
+  value,
+  description,
+  trend,
+  percentage,
+  icon,
+  iconColor,
+}: StatsCardProps) {
   return (
     <Card className="border-slate-200">
       <CardContent className="p-6">
@@ -27,14 +35,21 @@ export function StatsCard({ title, value, description, trend, percentage, icon, 
 
         <div className="flex items-center mt-4">
           <div
-            className={`flex items-center text-xs font-medium ${trend === "up" ? "text-emerald-600" : "text-rose-600"}`}
+            className={`flex items-center text-xs font-medium ${
+              trend === "up" ? "text-emerald-600" : "text-rose-600"
+            }`}
           >
-            {trend === "up" ? <ArrowUpIcon className="h-3 w-3 mr-1" /> : <ArrowDownIcon className="h-3 w-3 mr-1" />}
+            {trend === "up" ? (
+              <ArrowUpIcon className="h-3 w-3 mr-1" />
+            ) : trend === "down" ? (
+              <ArrowDownIcon className="h-3 w-3 mr-1" />
+            ) : (
+              ""
+            )}
             {percentage}
           </div>
-          <span className="text-xs text-slate-500 ml-1.5">from last month</span>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

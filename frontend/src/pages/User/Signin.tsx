@@ -20,6 +20,7 @@ import { setLogin } from "@/redux/slices/authSlice";
 import { toast } from "react-toastify";
 import { expenseApi } from "@/redux/services/expenseApi";
 import { incomeApi } from "@/redux/services/incomeApi";
+import { analyticsApi } from "@/redux/services/analyticsApi";
 
 const Signin = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -45,6 +46,7 @@ const Signin = () => {
         "income-notification",
       ])
     );
+    dispatch(analyticsApi.util.invalidateTags(["Analytics"]));
   };
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {

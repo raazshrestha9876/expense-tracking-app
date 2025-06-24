@@ -21,6 +21,9 @@ export const getExpenseAndIncomeAnalytics = async (req, res, next) => {
         },
       },
       {
+        $sort: { _id: -1 },
+      },
+      {
         $project: {
           _id: 0,
           date: "$_id",
@@ -56,8 +59,8 @@ export const getExpenseAndIncomeAnalytics = async (req, res, next) => {
       const income = incomes.find((income) => income.date === expense.date);
       return {
         date: expense.date,
-        totalAmountExpense: expense.totalAmountExpense || 0,
-        totalAmountIncome: income ? income.totalAmountIncome : 0,
+        expense: expense.totalAmountExpense || 0,
+        income: income ? income.totalAmountIncome : 0,
       };
     });
     res.status(200).json({
@@ -298,5 +301,3 @@ export const getDashboardCardStats = async (req, res, next) => {
     next(error);
   }
 };
-
-
