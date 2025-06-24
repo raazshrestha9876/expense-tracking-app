@@ -170,7 +170,6 @@ const getColumns = (
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => openExpenseDeleteDialog(row.index)}
-            className="text-red-600"
           >
             <Trash2 className="mr-2 h-4 w-4" />
             Delete
@@ -275,7 +274,7 @@ export function ExpenseTable({
     const totalPages = data?.totalPages ?? 1;
     setPage((old) => {
       const newPage = old + 1;
-      if (newPage >= totalPages) {
+      if (newPage > totalPages) {
         return old;
       } else {
         return newPage;

@@ -17,7 +17,6 @@ import { useRegisterMutation } from "@/redux/services/authApi";
 import { toast } from "react-toastify";
 
 const Signup = () => {
-
   const [register, { isLoading }] = useRegisterMutation();
   const navigate = useNavigate();
 
@@ -28,9 +27,14 @@ const Signup = () => {
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
     try {
       await register(values).unwrap();
-      navigate("/signin")
+      form.reset({
+        name: "",
+        email: "",
+        password: "",
+      });
+      navigate("/signin");
     } catch (error: any) {
-      toast.error(error.message)
+      toast.error(error.message);
     }
   };
 
@@ -58,7 +62,7 @@ const Signup = () => {
                   <FormLabel className="text-white">Name</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="shadcn"
+                      placeholder="Name"
                       {...field}
                       className="py-5 text-white"
                     />
@@ -75,7 +79,7 @@ const Signup = () => {
                   <FormLabel className="text-white">Email</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="shadcn"
+                      placeholder="Email"
                       {...field}
                       className="py-5 text-white"
                     />
@@ -92,7 +96,7 @@ const Signup = () => {
                   <FormLabel className="text-white">Password</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="shadcn"
+                      placeholder="Password"
                       {...field}
                       className="py-5 text-white"
                     />
@@ -116,7 +120,7 @@ const Signup = () => {
                 Sign up with Google
               </Button>
               <Link to={"/signin"} className="flex flex-row gap-1">
-                <p className="mt-2 text-white">
+                <p className="mt-2 text-white hover:underline">
                   Already have an account?{" "}
                   <span className="text-red-600">Sign in</span>
                 </p>

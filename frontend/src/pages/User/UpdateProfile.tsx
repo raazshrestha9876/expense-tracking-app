@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
-import { CalendarIcon, Loader2, Upload } from "lucide-react";
+import { CalendarIcon, CheckCircle2, Loader2, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,16 +51,22 @@ import { fetchUser } from "@/redux/slices/authSlice";
 
 import { useEffect, useRef, useState } from "react";
 import PasswordChangeForm from "@/components/Dashboard/PasswordChangeForm";
+import { CLOUD_NAME, UPLOAD_PRESET, UPLOAD_URL } from "@/constants/cloudinary";
+import axios from "axios";
 
 const UpdateProfile = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const { data: userData } = useGetUserQuery();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>(
+    userData?.image
+  );
 
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
-
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [imagePreview, setImagePreview] = useState<string>();
+  const [uploadStatus, setUploadStatus] = useState<
+    "idle" | "uploading" | "uploaded"
+  >("idle");
 
   const form = useForm<z.infer<typeof updateProfileSchema>>({
     resolver: zodResolver(updateProfileSchema),
@@ -82,31 +88,38 @@ const UpdateProfile = () => {
     }
   }, [userData, dispatch, form]);
 
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === "image") {
-        const file = value.image;
-        if (file instanceof File) {
-          const objectUrl = URL.createObjectURL(file);
-          setImagePreview(objectUrl);
-          return () => URL.revokeObjectURL(objectUrl);
-        } else if (typeof file === "string") {
-          setImagePreview(file);
-        } else {
-          setImagePreview("");
-        }
+  const handleImageUpload = async () => {
+    try {
+      const file = form.watch("image");
+      if (!file) {
+        return;
       }
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
+      setUploadStatus("uploading");
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", UPLOAD_PRESET);
+
+      const response = await axios.post(
+        `${UPLOAD_URL}/${CLOUD_NAME}/upload`,
+        formData
+      );
+      if (response.data.secure_url) {
+        form.setValue("image", response.data.secure_url);
+      }
+      setUploadStatus("uploaded");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const onSubmit = async (data: z.infer<typeof updateProfileSchema>) => {
     try {
       const payload = {
         ...data,
-        image: typeof data.image === "string" ? data.image : undefined,
+        image: data.image,
       };
       await updateUser(payload).unwrap();
+      setUploadStatus("idle");
       toast.success("Profile updated successfully");
     } catch (error: any) {
       toast.error(error.message);
@@ -142,18 +155,48 @@ const UpdateProfile = () => {
                     {/* Profile Image */}
                     <div className="flex flex-col items-center sm:flex-row sm:items-start gap-6">
                       <div className="flex flex-col items-center gap-2">
-                        <Avatar className="h-32 w-32">
+                        <Avatar
+                          className="h-32 w-32 cursor-pointer"
+                          onClick={() => fileRef.current?.click()}
+                        >
                           <AvatarImage
                             src={
-                              imagePreview ||
+                              previewUrl ||
                               "https://thumbs.dreamstime.com/b/generic-person-gray-photo-placeholder-man-silhouette-white-background-144511705.jpg"
                             }
                             alt="Profile"
+                            className="object-cover"
                           />
                           <AvatarFallback>
                             {form.watch("name")?.charAt(0).toUpperCase() || "U"}
                           </AvatarFallback>
                         </Avatar>
+                        {uploadStatus === "uploading" && (
+                          <span className="flex items-center gap-2 text-gray-600 text-[14px]">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Uploading...
+                          </span>
+                        )}
+
+                        {uploadStatus === "uploaded" && (
+                          <span className="flex items-center gap-2 text-green-600 text-[14px]">
+                            <CheckCircle2 className="w-4 h-4" />
+                            Uploaded
+                          </span>
+                        )}
+                        <Button
+                          type="button"
+                          className="cursor-pointer w-full mt-2"
+                          onClick={handleImageUpload}
+                          disabled={uploadStatus === "uploading"}
+                        >
+                          {uploadStatus === "uploading" ? (
+                            <Loader2 className="animate-spin w-4 h-4" />
+                          ) : (
+                            "Upload"
+                          )}
+                        </Button>
+
                         <FormField
                           control={form.control}
                           name="image"
@@ -167,24 +210,20 @@ const UpdateProfile = () => {
                                     className="hidden bg-white"
                                     onChange={(e) => {
                                       const file = e.target.files?.[0];
+                                      setUploadStatus("idle");
                                       if (file) {
                                         form.setValue("image", file);
+                                      }
+                                      if (
+                                        file &&
+                                        file.type.startsWith("image/")
+                                      ) {
+                                        const url = URL.createObjectURL(file);
+                                        setPreviewUrl(url);
                                       }
                                     }}
                                     accept="image/*"
                                   />
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    className="mt-2 cursor-pointer"
-                                    onClick={() => {
-                                      fileRef.current?.click();
-                                    }}
-                                  >
-                                    <Upload className="h-4 w-4 mr-2" />
-                                    Change
-                                  </Button>
                                 </div>
                               </FormControl>
                               <FormMessage />

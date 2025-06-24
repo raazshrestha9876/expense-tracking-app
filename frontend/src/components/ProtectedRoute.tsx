@@ -1,7 +1,8 @@
 import type { RootState } from "@/redux/store/store";
 import { useSelector } from "react-redux";
 import { Navigate, Outlet } from "react-router-dom";
-import NotificationExpenseListener from "./Expense/NotificationExpenseListener";
+import ExpenseNotificationListener from "./Expense/ExpenseNotificationListener";
+import IncomeNotificationListener from "./Income/IncomeNotificationListener";
 
 
 const ProtectedRoute = () => {
@@ -13,7 +14,8 @@ const ProtectedRoute = () => {
 
   return (
     <>
-      <NotificationExpenseListener />
+      <IncomeNotificationListener />
+      <ExpenseNotificationListener />
       <Outlet />
     </>
   );

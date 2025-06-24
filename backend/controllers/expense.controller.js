@@ -20,6 +20,7 @@ export const addExpense = async (req, res, next) => {
     const notification = new Notification({
       user: req.userId,
       message: `You have added a new expense of $${expense.amount} for ${expense.description}`,
+      type: "expense",
     });
     await notification.save();
 
@@ -28,6 +29,7 @@ export const addExpense = async (req, res, next) => {
       message: notification.message,
       createdAt: notification.createdAt,
       isRead: notification.isRead,
+      type: notification.type,
     });
 
     res.status(201).json({
@@ -61,6 +63,7 @@ export const getAllExpense = async (req, res, next) => {
         path: "user",
         select: "name email",
       })
+      .sort({ createdAt: -1 })
       .limit(limit)
       .skip(skip);
 
@@ -102,6 +105,7 @@ export const updateExpense = async (req, res, next) => {
       const notification = new Notification({
         user: req.userId,
         message: `You have updated an expense of Rs. ${amount} for ${description}`,
+        type: "expense",
       });
       await notification.save();
 
@@ -109,6 +113,8 @@ export const updateExpense = async (req, res, next) => {
         _id: notification._id,
         message: notification.message,
         isRead: notification.isRead,
+        createdAt: notification.createdAt,
+        type: notification.type,
       });
     }
     res.status(200).json({
@@ -141,6 +147,7 @@ export const getExpenseNotification = async (req, res, next) => {
     const userId = req.userId;
     const notifications = await Notification.find({
       user: userId,
+      type: "expense",
     }).sort({
       createdAt: -1,
     });
@@ -217,6 +224,8 @@ export const getExpenseCardStats = async (req, res, next) => {
   }
 };
 
+
+//This is used for reports
 export const getExpenseDailyAnalytics = async (req, res, next) => {
   try {
     const expense = await Expense.aggregate([

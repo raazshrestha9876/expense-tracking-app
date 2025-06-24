@@ -50,7 +50,9 @@ import { type AppDispatch } from "@/redux/store/store";
 import { getIncomes } from "@/redux/slices/incomeSlice";
 
 const getColumns = (
-  onIncomeDeleteDialogOpen: (index: number) => void
+  onIncomeDeleteDialogOpen: (index: number) => void,
+  onEditIncomeSheetOpen: (index: number) => void,
+  onDetailIncomeSheetOpen: (index: number) => void
 ): ColumnDef<Income>[] => [
   {
     id: "select",
@@ -177,11 +179,13 @@ const getColumns = (
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEditIncomeSheetOpen(row.index)}>
               <Edit className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onDetailIncomeSheetOpen(row.index)}
+            >
               <Eye className="mr-2 h-4 w-4" />
               View
             </DropdownMenuItem>
@@ -200,9 +204,15 @@ const getColumns = (
 
 interface IncomeTableProps {
   onDeleteIncomeDialogOpen: (index: number) => void;
+  onEditIncomeSheetOpen: (index: number) => void;
+  onDetailIncomeSheetOpen: (index: number) => void;
 }
 
-export function IncomeTable({ onDeleteIncomeDialogOpen }: IncomeTableProps) {
+export function IncomeTable({
+  onDeleteIncomeDialogOpen,
+  onEditIncomeSheetOpen,
+  onDetailIncomeSheetOpen,
+}: IncomeTableProps) {
   const paginationRef = React.useRef<HTMLDivElement>(null);
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "date", desc: true },
@@ -273,7 +283,11 @@ export function IncomeTable({ onDeleteIncomeDialogOpen }: IncomeTableProps) {
 
   const table = useReactTable({
     data: data?.income ?? [],
-    columns: getColumns(onDeleteIncomeDialogOpen),
+    columns: getColumns(
+      onDeleteIncomeDialogOpen,
+      onEditIncomeSheetOpen,
+      onDetailIncomeSheetOpen
+    ),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -405,7 +419,7 @@ export function IncomeTable({ onDeleteIncomeDialogOpen }: IncomeTableProps) {
             variant="outline"
             size="sm"
             onClick={handleNext}
-            disabled={data ? page === data?.totalPages: true}
+            disabled={data ? page === data?.totalPages : true}
           >
             Next
           </Button>

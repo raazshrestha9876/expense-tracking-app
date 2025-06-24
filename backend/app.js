@@ -7,9 +7,9 @@ import cors from "cors";
 import userRoute from "./routes/user.route.js";
 import expenseRoute from "./routes/expense.route.js";
 import incomeRoute from "./routes/income.route.js";
+import analyticsRoute from "./routes/analytics.route.js"
 import http from "http";
 import { Server } from "socket.io";
-import Notification from "./models/notification.model.js";
 import verifySocketToken from "./middleware/VerifySocketToken.js";
 
 dotenv.config();
@@ -45,12 +45,11 @@ io.use(verifySocketToken);
 io.on("connection", (socket) => {
   const userId = socket.userId;
 
+
   if (!userId) return;
 
   connectedUser.set(userId, socket.id);
   socket.join(userId.toString());
-
-  console.log(`User ${userId} connected with socket ${socket.id}`);
 
   socket.on("disconnect", () => {
     console.log(`User ${userId} disconnected`);
@@ -62,6 +61,7 @@ io.on("connection", (socket) => {
 app.use("/api/user", userRoute);
 app.use("/api/expense", expenseRoute);
 app.use("/api/income", incomeRoute);
+app.use("/api/analytics", analyticsRoute);
 
 app.use(errorMiddleware);
 

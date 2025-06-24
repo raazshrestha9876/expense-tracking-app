@@ -5,6 +5,7 @@ import type {
   addExpenseSchema,
   updateExpenseSchema,
 } from "@/schema/expense.schema";
+import { API_URL } from "@/constants/apiUrl";
 
 type AddExpenseRequest = z.infer<typeof addExpenseSchema>;
 type UpdateExpenseRequest = z.infer<typeof updateExpenseSchema>;
@@ -12,10 +13,10 @@ type UpdateExpenseRequest = z.infer<typeof updateExpenseSchema>;
 export const expenseApi = createApi({
   reducerPath: "expenseApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api",
+    baseUrl: `${API_URL}/expense`,
     credentials: "include",
   }),
-  tagTypes: ["Expense"],
+  tagTypes: ["Expense", "Expense-notification", "Expense-stats"],
   endpoints: (builder) => ({
     getExpensesApi: builder.query<
       {
@@ -27,7 +28,7 @@ export const expenseApi = createApi({
       { page: number; limit: number; search: string }
     >({
       query: ({ page, limit, search }) => ({
-        url: `/expense/get?search=${search}&page=${page}&limit=${limit}`,
+        url: `/get?search=${search}&page=${page}&limit=${limit}`,
         method: "GET",
       }),
       transformResponse: (response: {
@@ -46,13 +47,12 @@ export const expenseApi = createApi({
 
     addExpenseApi: builder.mutation<Expense, AddExpenseRequest>({
       query: (expense) => ({
-        url: "/expense/add",
+        url: "/add",
         method: "POST",
         body: expense,
       }),
-      transformResponse: (response: { data: Expense }) =>
-        response.data,
-      invalidatesTags: ["Expense"],
+      transformResponse: (response: { data: Expense }) => response.data,
+      invalidatesTags: ["Expense", "Expense-notification", "Expense-stats"],
     }),
 
     updateExpenseApi: builder.mutation<
@@ -60,32 +60,30 @@ export const expenseApi = createApi({
       { expenseId: string; expenseData: UpdateExpenseRequest }
     >({
       query: ({ expenseId, expenseData }) => ({
-        url: `/expense/update/${expenseId}`,
+        url: `/update/${expenseId}`,
         method: "PUT",
         body: expenseData,
       }),
-      transformResponse: (response: { data: Expense }) =>
-        response.data,
-      invalidatesTags: ["Expense"],
+      transformResponse: (response: { data: Expense }) => response.data,
+      invalidatesTags: ["Expense", "Expense-notification", "Expense-stats"],
     }),
 
     deleteExpenseApi: builder.mutation<void, string>({
       query: (expenseId) => ({
-        url: `/expense/delete/${expenseId}`,
+        url: `/delete/${expenseId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Expense"],
+      invalidatesTags: ["Expense", "Expense-stats"],
     }),
 
     getExpenseNotification: builder.query<ExpenseNotification[], void>({
       query: () => ({
-        url: "/expense/get-expense-notification",
+        url: "/get-expense-notification",
         method: "GET",
       }),
-      transformResponse: (response: {
-        data: ExpenseNotification[];
-      }) => response.data,
-      providesTags: ["Expense"],
+      transformResponse: (response: { data: ExpenseNotification[] }) =>
+        response.data,
+      providesTags: ["Expense-notification"],
     }),
 
     getExpenseStatsApi: builder.query<
@@ -98,7 +96,7 @@ export const expenseApi = createApi({
       void
     >({
       query: () => ({
-        url: "/expense/expense-stats",
+        url: "/expense-stats",
         method: "GET",
       }),
       transformResponse: (response: {
@@ -109,7 +107,7 @@ export const expenseApi = createApi({
           AverageMonthExpense: number;
         };
       }) => response.data,
-      providesTags: ["Expense"],
+      providesTags: ["Expense-stats"],
     }),
   }),
 });

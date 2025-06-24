@@ -4,7 +4,7 @@ export interface User {
   email: string;
   phoneNumber?: string;
   occupation?: string;
-  image?: File | string;
+  image?: string;
   address?: string;
   dob?: Date;
   gender?: "male" | "female";

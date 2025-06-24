@@ -4,15 +4,17 @@ import { addExpense, deleteExpense, getAllExpense, getExpenseAllDateAnalytics, g
 
 const router = express.Router();
 
-router.post('/add', verifyToken, addExpense);
+
 router.get('/get', verifyToken, getAllExpense);
-router.put('/update/:id', verifyToken, updateExpense);
 router.get('/expense-stats', verifyToken, getExpenseCardStats);
 router.get('/expense-daily-analytics', verifyToken, getExpenseDailyAnalytics);
 router.get('/expense-category-analytics', verifyToken, getExpenseCategoryAnalytics);
 router.get('/expense-all-date-analytics', verifyToken, getExpenseAllDateAnalytics);
-router.delete('/delete/:id', verifyToken, deleteExpense);
 router.get('/get-expense-notification', verifyToken, getExpenseNotification);
+
+router.post('/add', verifyToken, addExpense);
+router.put('/update/:id', verifyToken, updateExpense);
+router.delete('/delete/:id', verifyToken, deleteExpense);
 
 
 export default router;

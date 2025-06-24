@@ -32,7 +32,13 @@ const userSchema = new mongoose.Schema({
   },
   occupation: {
     type: String,
-  }
+  },
+  otp: {
+    type: Number,
+  },
+  otpExpiry: {
+    type: Date,
+  },
 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

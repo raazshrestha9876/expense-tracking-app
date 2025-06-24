@@ -12,6 +12,7 @@ export interface ExpenseNotification {
   _id: string;
   message: string;
   isRead: boolean;
+  type: "expense" | "income";
   createdAt: Date;
 }
 export interface ExpenseState {

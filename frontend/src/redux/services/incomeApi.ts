@@ -5,6 +5,8 @@ import type {
   updateIncomeSchema,
 } from "@/schema/income.schema";
 import type { z } from "zod";
+import type { ExpenseNotification } from "../types/expense";
+import { API_URL } from "@/constants/apiUrl";
 
 type AddIncomeRequest = z.infer<typeof addIncomeSchema>;
 type UpdateExpenseRequest = z.infer<typeof updateIncomeSchema>;
@@ -12,10 +14,10 @@ type UpdateExpenseRequest = z.infer<typeof updateIncomeSchema>;
 export const incomeApi = createApi({
   reducerPath: "incomeApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/income",
+    baseUrl: `${API_URL}/income`,
     credentials: "include",
   }),
-  tagTypes: ["income"],
+  tagTypes: ["income", "income-notification", "income-stats"],
   endpoints: (builder) => ({
     getIncomeApi: builder.query<
       {
@@ -51,7 +53,7 @@ export const incomeApi = createApi({
         body: income,
       }),
       transformResponse: (response: { data: Income }) => response.data,
-      invalidatesTags: ["income"],
+      invalidatesTags: ["income", "income-notification", "income-stats"],
     }),
 
     updateIncomeApi: builder.mutation<
@@ -64,7 +66,7 @@ export const incomeApi = createApi({
         body: incomeData,
       }),
       transformResponse: (response: { data: Income }) => response.data,
-      invalidatesTags: ["income"],
+      invalidatesTags: ["income", "income-notification", "income-stats"],
     }),
 
     deleteIncomeApi: builder.mutation<void, string>({
@@ -72,7 +74,17 @@ export const incomeApi = createApi({
         url: `/delete/${incomeId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["income"],
+      invalidatesTags: ["income", "income-stats"],
+    }),
+
+    getIncomeNotification: builder.query<ExpenseNotification[], void>({
+      query: () => ({
+        url: "/get-income-notification",
+        method: "GET",
+      }),
+      transformResponse: (response: { data: ExpenseNotification[] }) =>
+        response.data,
+      providesTags: ["income-notification"],
     }),
 
     getIncomeCardStatsApi: builder.query<
@@ -96,7 +108,7 @@ export const incomeApi = createApi({
           averageMonthIncome: number;
         };
       }) => response.data,
-      providesTags: ["income"],
+      providesTags: ["income-stats"],
     }),
   }),
 });
@@ -106,5 +118,6 @@ export const {
   useGetIncomeCardStatsApiQuery,
   useAddIncomeApiMutation,
   useUpdateIncomeApiMutation,
-  useDeleteIncomeApiMutation
+  useDeleteIncomeApiMutation,
+  useGetIncomeNotificationQuery,
 } = incomeApi;

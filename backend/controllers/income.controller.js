@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import Income from "../models/income.model.js";
 import errorHandler from "../utils/errorHandler.js";
+import Notification from "../models/notification.model.js";
+import { io } from "../app.js";
 
 export const addIncome = async (req, res, next) => {
   try {
@@ -14,6 +16,22 @@ export const addIncome = async (req, res, next) => {
       user: req.userId,
     });
     await income.save();
+
+    const notification = new Notification({
+      user: req.userId,
+      message: `You have added a new income of $${amount} for ${description}.`,
+      type: "income",
+    });
+    await notification.save();
+    
+    io.to(req.userId.toString()).emit("add_income_notification", {
+      _id: notification._id,
+      message: notification.message,
+      isRead: notification.isRead,
+      createdAt: notification.createdAt,
+      type: notification.type,
+    });
+
     res.status(201).json({
       success: true,
       message: "Income added successfully",
@@ -44,6 +62,7 @@ export const getAllIncome = async (req, res, next) => {
         path: "user",
         select: "name email",
       })
+      .sort({ createdAt: -1 })
       .limit(limit)
       .skip(skip);
 
@@ -77,6 +96,24 @@ export const updateIncome = async (req, res, next) => {
     const updatedIncome = await Income.findByIdAndUpdate(incomeId, incomeData, {
       new: true,
     });
+
+    if (income.amount !== amount) {
+      const notification = new Notification({
+        user: req.userId,
+        message: `You have added a new income of $${amount} for ${description}.`,
+        type: "income",
+      });
+      await notification.save();
+
+      io.to(req.userId.toString()).emit("update_income_notification", {
+        _id: notification._id,
+        message: notification.message,
+        isRead: notification.isRead,
+        createdAt: notification.createdAt,
+        type: notification.type,
+      });
+    }
+
     res.status(200).json({
       success: true,
       message: "Income updated successfully",
@@ -96,6 +133,24 @@ export const deleteIncome = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Income deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getIncomeNotification = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const notifications = await Notification.find({
+      user: userId,
+      type: "income",
+    }).sort({
+      createdAt: -1,
+    });
+    res.status(200).json({
+      success: true,
+      data: notifications,
     });
   } catch (error) {
     next(error);
@@ -193,6 +248,8 @@ export const getIncomeCardStats = async (req, res, next) => {
   }
 };
 
+
+//this is used for reports 
 export const getDailyIncomeAnalytics = async (req, res, next) => {
   try {
     const income = await Income.aggregate([

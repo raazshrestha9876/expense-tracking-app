@@ -19,17 +19,13 @@ import { clearExpenseNotification } from "@/redux/slices/expenseSlice";
 import { useSidebar } from "@/hooks/useSidebar";
 
 const Navbar = () => {
-  const { toggle }: any  = useSidebar();
+  const { toggle }: any = useSidebar();
   const dispatch = useDispatch<AppDispatch>();
   const [logout, { isLoading }] = useLogoutMutation();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.auth
   );
-  const { expenseNotificationCount } = useSelector(
-    (state: RootState) => state.expenses
-  );
-
   const handleLogout = async () => {
     try {
       await logout();
@@ -71,11 +67,6 @@ const Navbar = () => {
             size="icon"
             className="text-slate-600 hover:bg-slate-100 relative"
           >
-            {expenseNotificationCount > 0 && (
-              <span className="absolute bg-red-700 text-white rounded-full object-contain px-[5px] py-[1px] text-[12px] top-1 right-5">
-                {expenseNotificationCount}
-              </span>
-            )}
             <Bell className="h-8 w-8" size={28} />
             <span className="sr-only">Notifications</span>
           </Button>
@@ -87,7 +78,13 @@ const Navbar = () => {
               {isAuthenticated ? (
                 <>
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://thumbs.dreamstime.com/b/generic-person-gray-photo-placeholder-man-silhouette-white-background-144511705.jpg" />
+                    <AvatarImage
+                      src={
+                        user?.image ||
+                        "https://thumbs.dreamstime.com/b/generic-person-gray-photo-placeholder-man-silhouette-white-background-144511705.jpg"
+                      }
+                      className="object-cover"
+                    />
                     <AvatarFallback>{user?.name.slice(0, 1)}</AvatarFallback>
                   </Avatar>
                   <div className="hidden md:block">

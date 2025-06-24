@@ -1,4 +1,7 @@
+import IncomeDetailSheet from "@/components/Income/IncomeDetailSheet";
 import { IncomeDeleteForDialog } from "@/components/Income/IncomeDialogForDelete";
+import IncomeNotificationSheet from "@/components/Income/IncomeNotificationSheet";
+import { IncomesheetForUpdate } from "@/components/Income/IncomeSheetForUpdate";
 import { IncomeTable } from "@/components/Income/IncomeTable";
 import {
   Breadcrumb,
@@ -10,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGetIncomeCardStatsApiQuery } from "@/redux/services/incomeApi";
-import { openIncomeDeleteDialog } from "@/redux/slices/incomeSlice";
+import { openIncomeDeleteDialog, openIncomeDetailSheet, openIncomeEditSheet, openIncomeNotificationSheet } from "@/redux/slices/incomeSlice";
 import type { AppDispatch, RootState } from "@/redux/store/store";
 
 import { Calendar, CreditCard, DollarSign, TrendingUp } from "lucide-react";
@@ -21,7 +24,7 @@ const IncomeView = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { isIncomeDeleteDialogOpen, selectedIndex, incomes } = useSelector(
+  const { isIncomeDeleteDialogOpen, selectedIndex, incomes, isIncomeEditSheetOpen, isIncomeDetailSheetOpen, isIncomeNotificationSheetOpen } = useSelector(
     (state: RootState) => state.incomes
   );
   
@@ -32,6 +35,18 @@ const IncomeView = () => {
   const handleIncomeDeleteDialogOpen = (index: number) => {
     dispatch(openIncomeDeleteDialog({ index: index, open: true }));
   };
+
+  const handleIncomeEditSheetOpen = (index: number) => {
+    dispatch(openIncomeEditSheet({ index: index, open: true }));
+  }
+
+  const handleIncomeDetailSheetOpen = (index: number) => {
+    dispatch(openIncomeDetailSheet({ index: index, open: true }));
+  }
+
+  const handleIncomeNotificationSheetOpen = () => {
+    dispatch(openIncomeNotificationSheet({ open: true }))
+  }
 
   return (
     <div className="px-10 pb-4 pt-4">
@@ -58,7 +73,7 @@ const IncomeView = () => {
           >
             Add Income
           </Button>
-          <Button className="cursor-pointer">Reminder</Button>
+          <Button className="cursor-pointer" onClick={handleIncomeNotificationSheetOpen}>Reminder</Button>
         </div>
       </div>
 
@@ -111,16 +126,19 @@ const IncomeView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {incomeStats?.totalTransaction.toFixed(2) || 0}
+              {incomeStats?.totalTransaction || 0}
             </div>
             <p className="text-xs text-muted-foreground">All Time</p>
           </CardContent>
         </Card>
       </div>
 
-      <IncomeTable onDeleteIncomeDialogOpen={handleIncomeDeleteDialogOpen} />
+      <IncomeTable onDeleteIncomeDialogOpen={handleIncomeDeleteDialogOpen} onEditIncomeSheetOpen={handleIncomeEditSheetOpen} onDetailIncomeSheetOpen={handleIncomeDetailSheetOpen} />
 
       {isIncomeDeleteDialogOpen && <IncomeDeleteForDialog income={income} />}
+      {isIncomeEditSheetOpen && <IncomesheetForUpdate income={income} /> }
+      {isIncomeDetailSheetOpen && <IncomeDetailSheet income={income} />}
+      {isIncomeNotificationSheetOpen && <IncomeNotificationSheet />}
     </div>
   );
 };

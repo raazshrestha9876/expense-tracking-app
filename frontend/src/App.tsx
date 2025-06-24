@@ -14,6 +14,9 @@ import UpdateProfile from "./pages/User/UpdateProfile";
 import { useSelector } from "react-redux";
 import type { RootState } from "./redux/store/store";
 import useSocketManager from "./hooks/useSocketManager";
+import ForgetPassword from "./pages/User/ForgetPassword";
+import OTP from "./pages/User/OTP";
+import ResetPassword from "./pages/User/ResetPassword";
 
 function App() {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -32,6 +35,18 @@ function App() {
         {
           path: "signin",
           element: <Signin />,
+        },
+        {
+          path: "forgot-password",
+          element: <ForgetPassword />,
+        },
+        {
+          path: "forget-password/verify-otp",
+          element: <OTP />,
+        },
+        {
+          path: "reset-password",
+          element: <ResetPassword />,
         },
         {
           element: <ProtectedRoute />,
@@ -74,7 +89,7 @@ function App() {
     <>
       <RouterProvider router={router} />
     </>
-  )
+  );
 }
 
 export default App;

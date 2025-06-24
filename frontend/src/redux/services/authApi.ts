@@ -1,7 +1,9 @@
 import {
+  forgetPasswordSchema,
   loginSchema,
   registerSchema,
   updateProfileSchema,
+  verifyOtpSchema,
 } from "@/schema/user.schema";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { z } from "zod";
@@ -10,6 +12,8 @@ import type { User } from "../types/auth";
 type RegisterRequest = z.infer<typeof registerSchema>;
 type LoginRequest = z.infer<typeof loginSchema>;
 type UpdateUserRequest = z.infer<typeof updateProfileSchema>;
+type ForgetPasswordRequest = z.infer<typeof forgetPasswordSchema>;
+type VerifyOptRequest = z.infer<typeof verifyOtpSchema>;
 
 export const authApi = createApi({
   reducerPath: "authApi",
@@ -64,6 +68,7 @@ export const authApi = createApi({
         response.data,
       providesTags: ["User"],
     }),
+
     updateUser: builder.mutation<User, UpdateUserRequest>({
       query: (updateUser) => ({
         url: "/user/update",
@@ -74,11 +79,46 @@ export const authApi = createApi({
         response.data,
       invalidatesTags: ["User"],
     }),
+
     updateUserPassword: builder.mutation<void, { password: string }>({
       query: (password) => ({
         url: "/user/update-password",
         method: "POST",
         body: password,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+    forgetPassword: builder.mutation<void, ForgetPasswordRequest>({
+      query: (email) => ({
+        url: "/user/forget-password",
+        method: "POST",
+        body: email,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+    verifyOtp: builder.mutation<
+      { success: boolean; message: string },
+      VerifyOptRequest
+    >({
+      query: (otp) => ({
+        url: "/user/forget-password/verify-otp",
+        method: "POST",
+        body: otp,
+      }),
+      invalidatesTags: ["User"],
+      transformResponse: (response: { success: boolean; message: string }) => ({
+        success: response.success,
+        message: response.message,
+      }),
+    }),
+
+    resetPassword: builder.mutation<void, { newPassword: string }>({
+      query: (newPassword) => ({
+        url: "/user/reset-password",
+        method: "POST",
+        body: newPassword,
       }),
       invalidatesTags: ["User"],
     }),
@@ -92,4 +132,7 @@ export const {
   useUpdateUserMutation,
   useGetUserQuery,
   useUpdateUserPasswordMutation,
+  useForgetPasswordMutation,
+  useVerifyOtpMutation,
+  useResetPasswordMutation
 } = authApi;

@@ -2,7 +2,11 @@ import User from "../models/user.model.js";
 import errorHandler from "../utils/errorHandler.js";
 import bcrypt from "bcrypt";
 import generateToken from "../utils/generateToken.js";
-import setAuthCookie from "../utils/cookieHelper.js";
+import sendEmail from "../utils/sendEmail.js";
+import {
+  setAuthCookie,
+  setPasswordResetCookie,
+} from "../utils/cookieHelper.js";
 
 export const registerUser = async (req, res, next) => {
   try {
@@ -60,6 +64,77 @@ export const logout = async (req, res, next) => {
       success: true,
       message: "Logged out successfully",
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const forgetPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return next(errorHandler(404, "User not found"));
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiry = new Date(Date.now() + 2 * 60 * 1000);
+
+    user.otp = otp;
+    user.otpExpiry = expiry;
+    await user.save();
+
+    const subject = "Your OTP for Password Reset in Expenso";
+    const message = `<p style={{fontSize: "20px" }}>Your OTP is <strong>${otp}</strong>. It will expire in 1 minutes.</p>`;
+    await sendEmail(user.email, subject, message);
+
+    res.status(200).json({ success: true, message: "OTP sent successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyOtp = async (req, res, next) => {
+  try {
+    const { otp } = req.body;
+    const user = await User.findOne({ otp: otp });
+    if (!user) {
+      return next(errorHandler(404, "Invalid OTP"));
+    }
+    const currentTime = new Date();
+    if (user.otpExpiry < currentTime) {
+      return next(errorHandler(404, "OTP has expired"));
+    }
+    user.otp = null;
+    user.otpExpiry = null;
+    await user.save();
+
+    const token = generateToken(user._id);
+    setPasswordResetCookie(res, token);
+
+    res
+      .status(200)
+      .json({ success: true, message: "OTP verified successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { newPassword } = req.body;
+    const userId = req.userId;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return next(errorHandler(404, "User not found"));
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: "Password reset successfully" });
   } catch (error) {
     next(error);
   }

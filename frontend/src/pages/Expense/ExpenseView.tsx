@@ -144,7 +144,7 @@ const ExpenseView = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${expenseStats?.totalTransaction.toFixed(2) || 0}
+              {expenseStats?.totalTransaction || 0}
             </div>
             <p className="text-xs text-muted-foreground">All Time</p>
           </CardContent>

@@ -13,6 +13,7 @@ export interface IncomeNotification {
   _id: string;
   message: string;
   isRead: boolean;
+  type: "expense" | "income";
   createdAt: Date;
 }
 export interface IncomeState {

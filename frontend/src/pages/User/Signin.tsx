@@ -30,12 +30,34 @@ const Signin = () => {
     resolver: zodResolver(loginSchema),
   });
 
+  const invalidateAllTags = () => {
+    dispatch(
+      expenseApi.util.invalidateTags([
+        "Expense",
+        "Expense-stats",
+        "Expense-notification",
+      ])
+    );
+    dispatch(
+      incomeApi.util.invalidateTags([
+        "income",
+        "income-stats",
+        "income-notification",
+      ])
+    );
+  };
+
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
       const response = await login(values).unwrap();
       dispatch(setLogin(response));
-      dispatch(expenseApi.util.invalidateTags(["Expense"]));
-      dispatch(incomeApi.util.invalidateTags(['income']));
+
+      invalidateAllTags();
+      form.reset({
+        email: "",
+        password: "",
+      });
+
       navigate("/", { replace: true });
     } catch (error: any) {
       toast.error(error.message || "Invalid Login");
@@ -65,7 +87,7 @@ const Signin = () => {
                   <FormLabel className="text-white">Email</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="shadcn"
+                      placeholder="Email"
                       {...field}
                       className="py-5 text-white"
                     />
@@ -82,7 +104,7 @@ const Signin = () => {
                   <FormLabel className="text-white">Password</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="shadcn"
+                      placeholder="Password"
                       {...field}
                       className="py-5 text-white"
                     />
@@ -95,20 +117,24 @@ const Signin = () => {
             <Button type="submit" className="py-5">
               {isLoading ? "loading..." : "login"}
             </Button>
-            <div>
-              <Button type="button" className="py-5 w-full" variant="outline">
-                <img
-                  className="h-7 w-7"
-                  src="https://static.dezeen.com/uploads/2025/05/sq-google-g-logo-update_dezeen_2364_col_0-852x852.jpg"
-                  alt="google"
-                />{" "}
-                Sign in with Google
-              </Button>
+            <Button type="button" className="py-5 w-full" variant="outline">
+              <img
+                className="h-7 w-7"
+                src="https://static.dezeen.com/uploads/2025/05/sq-google-g-logo-update_dezeen_2364_col_0-852x852.jpg"
+                alt="google"
+              />{" "}
+              Sign in with Google
+            </Button>
+            <div className="flex flex-row justify-between items-center">
               <Link to={"/signup"}>
-                <p className="mt-2 text-white">
+                <p className=" text-white hover:underline">
                   Create a new account?{" "}
                   <span className="text-red-600">Sign up</span>
                 </p>
+              </Link>
+
+              <Link to={"/forgot-password"}>
+                <p className=" text-white hover:underline">Forget Password? </p>
               </Link>
             </div>
           </form>

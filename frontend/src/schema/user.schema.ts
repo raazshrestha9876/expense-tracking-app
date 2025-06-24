@@ -41,3 +41,24 @@ export const updatePasswordSchema = z
     path: ["confirmPassword"],
   });
 
+export const forgetPasswordSchema = z.object({
+  email: z.string().email("Invalid email"),
+});
+
+export const verifyOtpSchema = z.object({
+  otp: z.string().length(6, {
+    message: "OTP must be 6 digits",
+  }),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    newPassword: z.string().min(8, {
+      message: "Password must be at least 8 characters",
+    }),
+    confirmPassword: z.string(),
+  })
+  .refine((val) => val.newPassword === val.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
