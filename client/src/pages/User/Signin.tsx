@@ -119,7 +119,7 @@ const Signin = () => {
             <Button type="submit" className="py-5">
               {isLoading ? "loading..." : "login"}
             </Button>
-            <Button type="button" className="py-5 w-full" variant="outline">
+            <Button type="button" className="py-5 w-full cursor-pointer" variant="outline">
               <img
                 className="h-7 w-7"
                 src="https://static.dezeen.com/uploads/2025/05/sq-google-g-logo-update_dezeen_2364_col_0-852x852.jpg"

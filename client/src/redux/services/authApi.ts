@@ -19,14 +19,14 @@ type VerifyOptRequest = z.infer<typeof verifyOtpSchema>;
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `${API_URL}`,
+    baseUrl: `${API_URL}/user`,
     credentials: "include",
   }),
   tagTypes: ["User"],
   endpoints: (builder) => ({
     register: builder.mutation<User, RegisterRequest>({
       query: (newUser) => ({
-        url: "/user/register",
+        url: "/register",
         method: "POST",
         body: newUser,
       }),
@@ -40,7 +40,7 @@ export const authApi = createApi({
 
     login: builder.mutation<User, LoginRequest>({
       query: (credentials) => ({
-        url: "/user/login",
+        url: "/login",
         method: "POST",
         body: credentials,
       }),
@@ -54,7 +54,7 @@ export const authApi = createApi({
 
     logout: builder.mutation<void, void>({
       query: () => ({
-        url: "/user/logout",
+        url: "/logout",
         method: "GET",
       }),
       invalidatesTags: ["User"],
@@ -62,7 +62,7 @@ export const authApi = createApi({
 
     getUser: builder.query<User, void>({
       query: () => ({
-        url: "/user/get",
+        url: "/get",
         method: "GET",
       }),
       transformResponse: (response: { success: boolean; data: User }) =>
@@ -72,7 +72,7 @@ export const authApi = createApi({
 
     updateUser: builder.mutation<User, UpdateUserRequest>({
       query: (updateUser) => ({
-        url: "/user/update",
+        url: "/update",
         method: "POST",
         body: updateUser,
       }),
@@ -83,7 +83,7 @@ export const authApi = createApi({
 
     updateUserPassword: builder.mutation<void, { password: string }>({
       query: (password) => ({
-        url: "/user/update-password",
+        url: "/update-password",
         method: "POST",
         body: password,
       }),
@@ -92,7 +92,7 @@ export const authApi = createApi({
 
     forgetPassword: builder.mutation<void, ForgetPasswordRequest>({
       query: (email) => ({
-        url: "/user/forget-password",
+        url: "/forget-password",
         method: "POST",
         body: email,
       }),
@@ -104,7 +104,7 @@ export const authApi = createApi({
       VerifyOptRequest
     >({
       query: (otp) => ({
-        url: "/user/forget-password/verify-otp",
+        url: "/forget-password/verify-otp",
         method: "POST",
         body: otp,
       }),
@@ -117,7 +117,7 @@ export const authApi = createApi({
 
     resetPassword: builder.mutation<void, { newPassword: string }>({
       query: (newPassword) => ({
-        url: "/user/reset-password",
+        url: "/reset-password",
         method: "POST",
         body: newPassword,
       }),

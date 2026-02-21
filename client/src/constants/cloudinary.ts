@@ -1,3 +1,3 @@
-export const CLOUD_NAME = process.env.REACT_APP_CLOUD_NAME;
-export const UPLOAD_URL = process.env.REACT_APP_UPLOAD_URL;
-export const UPLOAD_PRESET = process.env.REACT_APP_UPLOAD_PRESET;
+export const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
+export const UPLOAD_URL = import.meta.env.VITE_UPLOAD_URL;
+export const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;

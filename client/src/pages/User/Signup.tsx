@@ -111,7 +111,7 @@ const Signup = () => {
             </Button>
 
             <div>
-              <Button type="button" variant="outline" className="w-full py-5">
+              <Button type="button" variant="outline" className="w-full py-5 cursor-pointer">
                 <img
                   className="h-7 w-7"
                   src="https://static.dezeen.com/uploads/2025/05/sq-google-g-logo-update_dezeen_2364_col_0-852x852.jpg"
