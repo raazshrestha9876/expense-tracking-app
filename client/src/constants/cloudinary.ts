@@ -1,3 +1,3 @@
-export const CLOUD_NAME = "dbrovblap";
-export const UPLOAD_URL = `https://api.cloudinary.com/v1_1`;
-export const UPLOAD_PRESET = "expense-profile-image"
+export const CLOUD_NAME = process.env.REACT_APP_CLOUD_NAME;
+export const UPLOAD_URL = process.env.REACT_APP_UPLOAD_URL;
+export const UPLOAD_PRESET = process.env.REACT_APP_UPLOAD_PRESET;

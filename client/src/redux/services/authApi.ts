@@ -8,6 +8,7 @@ import {
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { z } from "zod";
 import type { User } from "../types/auth";
+import { API_URL } from "@/constants/apiUrl";
 
 type RegisterRequest = z.infer<typeof registerSchema>;
 type LoginRequest = z.infer<typeof loginSchema>;
@@ -18,7 +19,7 @@ type VerifyOptRequest = z.infer<typeof verifyOtpSchema>;
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api",
+    baseUrl: `${API_URL}`,
     credentials: "include",
   }),
   tagTypes: ["User"],
