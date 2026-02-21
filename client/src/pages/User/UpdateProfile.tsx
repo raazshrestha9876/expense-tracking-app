@@ -97,7 +97,7 @@ const UpdateProfile = () => {
       setUploadStatus("uploading");
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", UPLOAD_PRESET);
+      formData.append("upload_preset", UPLOAD_PRESET || "");
 
       const response = await axios.post(
         `${UPLOAD_URL}/${CLOUD_NAME}/upload`,
@@ -105,6 +105,7 @@ const UpdateProfile = () => {
       );
       if (response.data.secure_url) {
         form.setValue("image", response.data.secure_url);
+        setPreviewUrl(response.data.secure_url);
       }
       setUploadStatus("uploaded");
     } catch (error) {
